@@ -15,6 +15,13 @@ Desde extreweb hay una entrada `laserena-dev-4340` en `.claude/launch.json` (pue
 `npm run build` → `dist/` estático (32 páginas), listo para Netlify. Si al crear un archivo nuevo sus estilos no
 salen en `npm run dev`, reiniciar el servidor (Tailwind no lo había escaneado).
 
+## Despliegue
+
+GitHub `ContactoExtreweb/Autoescuela_La_Serena` (rama `main`) → Netlify, automático en cada push.
+⚠️ El repo tiene que ser **público**: con el plan gratuito, en un repo privado Netlify bloquea los commits de
+autores que no son miembros de la cuenta («Unrecognized Git contributor»). Tras pasarlo a público hizo falta un
+push nuevo: «Retry» repite el despliegue ya bloqueado.
+
 ## Stack (igual que IMTEX)
 
 Astro 7 + Tailwind 4, estático, sin adaptador. Formulario con Netlify Forms. Fuente Overpass (nace de la letra de

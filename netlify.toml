@@ -1,0 +1,8 @@
+# La web está en web/: Netlify construye desde ahí
+[build]
+  base = "web"
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"

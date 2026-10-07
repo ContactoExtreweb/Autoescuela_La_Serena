@@ -1,0 +1,18 @@
+---
+import Base from '../layouts/Base.astro'
+import Cabeza from '../components/Cabeza.astro'
+import { EMPRESA } from '../lib/empresa.js'
+---
+
+<Base titulo="Política de privacidad" descripcion="Cómo trata La Serena Autoescuelas los datos que nos envías por el formulario de contacto.">
+  <Cabeza rotulo="Legal" titulo="Política de privacidad" migas={[{ href: '/privacidad/', texto: 'Privacidad' }]} />
+  {/* ⚠️ Borrador: faltan razón social, NIF y dirección del responsable (docs/ESTADO.md) */}
+  <div class="contenedor max-w-3xl space-y-5 py-14 text-lg">
+    <p><b>Responsable:</b> {EMPRESA.nombre} · [razón social y NIF pendientes] · {EMPRESA.email}</p>
+    <p><b>Para qué:</b> responder a tu petición de información sobre permisos y cursos. No enviamos publicidad sin tu permiso.</p>
+    <p><b>Legitimación:</b> tu consentimiento al enviar el formulario.</p>
+    <p><b>Cuánto tiempo:</b> lo necesario para atenderte y, después, lo que exija la ley.</p>
+    <p><b>Tus derechos:</b> acceder, rectificar, suprimir u oponerte escribiendo a {EMPRESA.email}. También puedes reclamar ante la Agencia Española de Protección de Datos.</p>
+    <p><b>Cookies:</b> esta web no usa cookies de seguimiento ni de terceros.</p>
+  </div>
+</Base>

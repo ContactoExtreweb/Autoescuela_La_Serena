@@ -1,0 +1,191 @@
+@import "tailwindcss";
+/* Overpass: nace de la Highway Gothic, la letra de las señales de carretera */
+@import "@fontsource-variable/overpass";
+
+/* `oscuro:` aplica solo con el tema oscuro (lo pone el script del <head> según la elección o el sistema) */
+@custom-variant oscuro (&:where([data-tema="oscuro"], [data-tema="oscuro"] *));
+
+@theme {
+  /* Tema claro (por defecto). Los nombres dicen el papel: papel = fondo, tinta = texto. */
+  --color-papel: #f4f6f9;
+  --color-papel-2: #ffffff;
+  --color-tinta: #0f141c;
+  --color-gris: #566071;
+  /* Azul de La Serena (el de «autoescuelas» en su logo). Para texto y enlaces sobre el fondo del tema. */
+  --color-azul: #0050a2;
+  --color-filete: color-mix(in oklab, var(--color-tinta) 12%, transparent);
+
+  /* Los que no cambian con el tema: las señales (azul de marca con texto blanco), el asfalto y la línea amarilla */
+  --color-senal: #0050a2;
+  --color-senal-2: #003b7a;
+  --color-asfalto: #12161d;
+  --color-amarillo: #ffc629;
+
+  --font-sans: "Overpass Variable", ui-sans-serif, system-ui, sans-serif;
+
+  --ease-salida: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+  :root {
+    --alto-cabecera: 4.25rem;
+    color-scheme: light;
+  }
+
+  :root[data-tema="oscuro"] {
+    --color-papel: #0b0e13;
+    --color-papel-2: #151a22;
+    --color-tinta: #eef1f6;
+    --color-gris: #a2abba;
+    --color-azul: #7fb3ff;
+    color-scheme: dark;
+  }
+
+  html {
+    scroll-padding-top: calc(var(--alto-cabecera) + 1rem);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background: var(--color-papel);
+    color: var(--color-tinta);
+    font-family: var(--font-sans);
+    font-size: 1.0625rem;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: var(--color-amarillo);
+    color: var(--color-asfalto);
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-amarillo);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+}
+
+@layer components {
+  /* Panel de señal de orientación: azul de marca, filete blanco por dentro y esquinas redondeadas */
+  .senal {
+    background: var(--color-senal);
+    color: #fff;
+    border-radius: 14px;
+    outline: 2px solid #fff;
+    outline-offset: -7px;
+  }
+
+  /* La franja de rayas inclinadas de la rotulación de sus camiones y su fachada */
+  .franja {
+    height: 10px;
+    background: repeating-linear-gradient(115deg, var(--color-senal) 0 22px, transparent 22px 34px);
+  }
+  .franja-clara {
+    background: repeating-linear-gradient(115deg, #fff 0 22px, transparent 22px 34px);
+  }
+
+  .boton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 3rem;
+    padding: 0 1.4rem;
+    border-radius: 999px;
+    font-weight: 750;
+    transition:
+      background-color 0.2s,
+      scale 0.15s var(--ease-salida);
+  }
+  .boton:active {
+    scale: 0.97;
+  }
+  .boton-amarillo {
+    background: var(--color-amarillo);
+    color: var(--color-asfalto);
+  }
+  .boton-azul {
+    background: var(--color-senal);
+    color: #fff;
+  }
+  .boton-borde {
+    box-shadow: inset 0 0 0 2px currentColor;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .boton-amarillo:hover {
+      background: #ffd55c;
+    }
+    .boton-azul:hover {
+      background: var(--color-senal-2);
+    }
+  }
+
+  /* Rótulo de sección: como el cajetín de un punto kilométrico */
+  .rotulo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-azul);
+  }
+  .rotulo::before {
+    content: '';
+    width: 1.6rem;
+    height: 4px;
+    border-radius: 2px;
+    background: currentColor;
+  }
+
+  .contenedor {
+    width: 100%;
+    max-width: 78rem;
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+  @media (min-width: 640px) {
+    .contenedor {
+      padding-inline: 2rem;
+    }
+  }
+}
+
+/* Aparición al llegar con el scroll. La clase .anima solo la pone el script si hay IntersectionObserver
+   y no se pidió reducir el movimiento: sin ella todo se ve sin más. */
+.anima [data-aparece] {
+  opacity: 0;
+  translate: 0 28px;
+  transition:
+    opacity 0.7s var(--ease-salida),
+    translate 0.9s var(--ease-salida);
+  transition-delay: var(--retraso, 0ms);
+}
+.anima [data-aparece][data-visto] {
+  opacity: 1;
+  translate: 0 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,30 @@
+---
+import { Image } from 'astro:assets'
+import iso from '../assets/sellos/iso.png'
+import sexpe from '../assets/sellos/sexpe.png'
+import cnae from '../assets/sellos/cnae.png'
+import cap from '../assets/sellos/cap.jpg'
+
+// Los sellos que enseña su web. ⚠️ Confirmar que siguen vigentes (docs/ESTADO.md).
+const SELLOS = [
+  { src: iso, alt: 'Certificación del sistema de calidad ISO 9001 (DNV)' },
+  { src: sexpe, alt: 'SEXPE, Servicio Extremeño Público de Empleo' },
+  { src: cnae, alt: 'CNAE, Confederación Nacional de Autoescuelas' },
+  { src: cap, alt: 'Centro autorizado para impartir cursos CAP' },
+]
+---
+
+<section class="border-y border-filete py-12">
+  <div class="contenedor flex flex-col items-center gap-8 md:flex-row md:justify-between">
+    <p class="max-w-xs text-center text-lg font-bold md:text-left">Centro homologado y calidad certificada</p>
+    <ul class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      {
+        SELLOS.map((s) => (
+          <li class="grid h-24 w-36 place-items-center rounded-2xl bg-white p-3">
+            <Image src={s.src} alt={s.alt} height={72} class="max-h-full w-auto object-contain" />
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

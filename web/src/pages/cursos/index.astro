@@ -1,0 +1,116 @@
+---
+import { Image } from 'astro:assets'
+import Base from '../../layouts/Base.astro'
+import Cabeza from '../../components/Cabeza.astro'
+import Icono from '../../components/Icono.astro'
+import Llamar from '../../components/Llamar.astro'
+import { CURSOS } from '../../lib/cursos.js'
+import { foto } from '../../lib/fotos.js'
+---
+
+<Base
+  titulo="Cursos: CAP, ADR, carretillero, grúa y formación gratuita"
+  descripcion="CAP inicial y de renovación, mercancías peligrosas (ADR), capacitación de transportista, carretillero, grúa autocargante, plataformas y retroexcavadora. Cursos gratuitos para desempleados y bonificados para empresas."
+>
+  <Cabeza
+    rotulo="Cursos y certificados"
+    titulo="Formación que te da trabajo."
+    texto="Los certificados que piden las empresas de transporte, logística y obra. Gratis si estás en paro y bonificados si eres empresa."
+    migas={[{ href: '/cursos/', texto: 'Cursos' }]}
+  />
+
+  <section class="py-14 sm:py-20">
+    <div class="contenedor grid gap-4 md:grid-cols-2">
+      {
+        CURSOS.map((c, i) => (
+          <a
+            href={`/cursos/${c.slug}/`}
+            data-aparece
+            style={`--retraso:${(i % 2) * 70}ms`}
+            class:list={[
+              'group flex flex-col rounded-3xl border border-filete bg-papel-2 p-7 transition hover:-translate-y-1 hover:border-senal',
+              i === 0 && 'md:col-span-2 md:flex-row md:items-center md:gap-10 !bg-senal !text-white !border-senal',
+            ]}
+          >
+            <span class:list={['grid size-14 shrink-0 place-items-center rounded-2xl', i === 0 ? 'bg-white text-senal' : 'bg-senal/10 text-azul']}>
+              <Icono nombre={c.icono} class="size-7" />
+            </span>
+            <span class="mt-5 block md:mt-0">
+              <span class="block text-sm font-bold tracking-widest uppercase opacity-70">{c.largo}</span>
+              <span class="mt-1 block text-3xl font-black">{c.nombre}</span>
+              <span class="mt-2 block opacity-80">{c.resumen}</span>
+            </span>
+            {c.datos && (
+              <span class="mt-6 flex gap-6 md:mt-0 md:ml-auto">
+                {c.datos.slice(0, 2).map(([k, v]) => (
+                  <span>
+                    <span class="block text-3xl font-black whitespace-nowrap">{v}</span>
+                    <span class="block text-sm opacity-75">{k}</span>
+                  </span>
+                ))}
+              </span>
+            )}
+          </a>
+        ))
+      }
+    </div>
+  </section>
+
+  <section id="gratis" class="bg-papel-2 py-16 sm:py-24">
+    <div class="contenedor grid items-center gap-12 lg:grid-cols-2">
+      <div data-aparece>
+        <p class="rotulo mb-4">Si estás en paro</p>
+        <h2 class="text-4xl font-black sm:text-6xl">Cursos gratis, de verdad.</h2>
+        <p class="mt-6 text-lg text-gris">
+          Somos centro colaborador del Gobierno de Extremadura en la formación para el empleo, homologado en todos nuestros
+          centros. Los cursos van dirigidos sobre todo a personas desempleadas inscritas en su oficina de empleo.
+        </p>
+        <ol class="mt-8 space-y-4">
+          <li class="flex gap-4"><span class="paso">1</span><span class="text-lg">Inscríbete como demandante de empleo en tu oficina del SEXPE.</span></li>
+          <li class="flex gap-4"><span class="paso">2</span><span class="text-lg">Solicita en tu oficina el curso que te interesa de los que impartimos.</span></li>
+          <li class="flex gap-4"><span class="paso">3</span><span class="text-lg">¿Dudas? Llámanos o pásate por cualquiera de nuestros centros.</span></li>
+        </ol>
+      </div>
+      <Image src={foto('curso-cap')} alt="Alumnos en un curso CAP en La Serena Autoescuelas" widths={[640, 960]} sizes="(min-width: 1024px) 50vw, 100vw" class="aspect-[4/3] w-full rounded-3xl object-cover" data-aparece />
+    </div>
+  </section>
+
+  <section id="empresas" class="py-16 sm:py-24">
+    <div class="contenedor">
+      <div class="senal grid gap-8 p-8 sm:p-12 lg:grid-cols-[1.2fr_1fr] lg:items-center" data-aparece>
+        <div>
+          <p class="rotulo !text-amarillo mb-4">Para empresas</p>
+          <h2 class="text-4xl font-black sm:text-5xl">La formación de tu equipo, bonificada.</h2>
+          <p class="mt-5 text-lg text-white/85">
+            Las empresas tienen cada año un crédito para formar a su plantilla, que sale de la cuota de formación que ya
+            pagan. Bien aprovechado, el curso puede no costar nada ni a la empresa ni al trabajador. El crédito no se acumula:
+            si no se usa, se pierde.
+          </p>
+        </div>
+        <ul class="grid gap-3">
+          {['Formación continua', 'Planes de formación', 'Formación a la carta', 'Cursos 100 % bonificables (FUNDAE)'].map((t) => (
+            <li class="flex items-center gap-3 rounded-xl bg-white/10 px-4 py-3 font-semibold">
+              <Icono nombre="check" class="size-5 text-amarillo" />{t}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <Llamar />
+</Base>
+
+<style>
+  .paso {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 999px;
+    background: var(--color-amarillo);
+    color: var(--color-asfalto);
+    font-weight: 900;
+  }
+</style>

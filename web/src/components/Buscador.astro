@@ -1,0 +1,216 @@
+---
+// «¿Qué quieres conducir?»: eliges vehículo y edad y te dice qué permiso necesitas, qué hace falta antes
+// y si ya puedes sacártelo. Todo el contenido sale en el HTML; el JS solo cambia de grupo y calcula la edad.
+// Sin JS, cada vehículo es un enlace a su apartado de /permisos/.
+import Icono from './Icono.astro'
+import { GRUPOS, PERMISOS, camino, edadTexto } from '../lib/permisos.js'
+import { curso } from '../lib/cursos.js'
+
+const INICIAL = 'coche'
+const EDAD = 18
+---
+
+<div class="buscador" data-buscador>
+  <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+    <h2 class="text-4xl font-black text-white sm:text-5xl">¿Qué quieres<br class="sm:hidden" /> conducir?</h2>
+    <label class="flex items-center gap-3 text-white/80">
+      <span class="font-semibold">Tengo</span>
+      <span class="flex items-center rounded-full bg-white/10 p-1">
+        <button type="button" data-edad="-1" class="grid size-10 place-items-center rounded-full text-xl font-bold text-white hover:bg-white/10" aria-label="Un año menos">−</button>
+        <input
+          type="number"
+          inputmode="numeric"
+          min="14"
+          max="80"
+          value={EDAD}
+          data-edad-campo
+          class="w-12 bg-transparent text-center text-2xl font-black text-white [appearance:textfield] focus:outline-none [&::-webkit-inner-spin-button]:appearance-none"
+          aria-label="Tu edad"
+        />
+        <button type="button" data-edad="1" class="grid size-10 place-items-center rounded-full text-xl font-bold text-white hover:bg-white/10" aria-label="Un año más">+</button>
+      </span>
+      <span class="font-semibold">años</span>
+    </label>
+  </div>
+
+  {/* Vehículos: se deslizan de lado en el móvil */}
+  <div class="-mx-4 mt-8 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0" role="tablist" aria-label="Vehículo">
+    <div class="flex w-max gap-2 sm:w-auto sm:flex-wrap">
+      {
+        GRUPOS.map((g) => (
+          <a
+            href={`/permisos/#${g.id}`}
+            role="tab"
+            id={`pestana-${g.id}`}
+            aria-controls={`grupo-${g.id}`}
+            aria-selected={g.id === INICIAL ? 'true' : 'false'}
+            data-grupo={g.id}
+            class="vehiculo group flex w-26 shrink-0 flex-col items-center gap-2 rounded-2xl border-2 border-white/12 px-2 pt-4 pb-3 text-center font-bold text-white/75 transition sm:w-30"
+          >
+            <Icono nombre={g.icono} class="size-9 transition-transform duration-300 group-aria-selected:scale-110" />
+            <span class="text-[15px] leading-tight">{g.nombre}</span>
+          </a>
+        ))
+      }
+    </div>
+  </div>
+
+  {/* Resultados: un bloque por vehículo; con JS solo se ve el elegido */}
+  <div class="mt-8">
+    {
+      GRUPOS.map((g) => (
+        <div
+          role="tabpanel"
+          id={`grupo-${g.id}`}
+          aria-labelledby={`pestana-${g.id}`}
+          data-panel={g.id}
+          hidden={g.id !== INICIAL}
+          class="panel -mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:px-0 xl:grid-cols-4"
+        >
+          {PERMISOS.filter((p) => p.grupo === g.id).map((p, i) => (
+            <article
+              class="senal relative flex w-[84%] shrink-0 snap-start flex-col p-6 pt-5 sm:w-auto"
+              style={`--i:${i}`}
+              data-edad-min={p.edad}
+              data-edad-cap={p.edadCap ?? ''}
+            >
+              <div class="flex items-start justify-between gap-3">
+                <span class="grid h-14 min-w-14 place-items-center rounded-lg bg-white px-2 text-2xl font-black text-senal">
+                  {p.clase}
+                </span>
+                <span class="estado mt-1 rounded-full bg-white/15 px-3 py-1 text-sm font-bold" data-estado>
+                  Desde {edadTexto(p)}
+                </span>
+              </div>
+              <h3 class="mt-5 text-2xl font-extrabold">{p.nombre}</h3>
+              <p class="mt-1 text-white/80">{p.conduce[0]}</p>
+              {camino(p).length > 0 && (
+                <p class="mt-4 flex flex-wrap items-center gap-1.5 text-sm font-semibold text-white/80">
+                  Antes necesitas
+                  {camino(p).map((a) => (
+                    <span class="rounded bg-white/90 px-1.5 py-0.5 font-black text-senal">{a.clase}</span>
+                  ))}
+                </p>
+              )}
+              <div class="mt-auto flex gap-2 pt-6">
+                <a href={`/permisos/${p.slug}/`} class="boton !min-h-11 flex-1 bg-white/12 !px-4 text-white hover:bg-white/20">
+                  Ver ficha
+                </a>
+                <a
+                  href={`/contacto/?interes=${encodeURIComponent('Permiso ' + p.clase)}`}
+                  class="boton boton-amarillo !min-h-11 flex-1 !px-4"
+                >
+                  Lo quiero
+                </a>
+              </div>
+            </article>
+          ))}
+          {(g.cursos ?? []).map(curso).map((c, i) => (
+            <article class="senal relative flex w-[84%] shrink-0 snap-start flex-col bg-senal-2! p-6 pt-5 sm:w-auto" style={`--i:${i + 1}`}>
+              <div class="flex items-start justify-between gap-3">
+                <span class="grid size-14 place-items-center rounded-lg bg-white text-senal">
+                  <Icono nombre={c.icono} class="size-7" />
+                </span>
+                <span class="mt-1 rounded-full bg-white/15 px-3 py-1 text-sm font-bold">Curso</span>
+              </div>
+              <h3 class="mt-5 text-2xl font-extrabold">{c.nombre}</h3>
+              <p class="mt-1 text-white/80">{c.resumen}</p>
+              <div class="mt-auto flex gap-2 pt-6">
+                <a href={`/cursos/${c.slug}/`} class="boton !min-h-11 flex-1 bg-white/12 !px-4 text-white hover:bg-white/20">
+                  Ver curso
+                </a>
+                <a href={`/contacto/?interes=${encodeURIComponent('Curso de ' + c.nombre)}`} class="boton boton-amarillo !min-h-11 flex-1 !px-4">
+                  Lo quiero
+                </a>
+              </div>
+            </article>
+          ))}
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .vehiculo[aria-selected='true'] {
+    background: var(--color-amarillo);
+    border-color: var(--color-amarillo);
+    color: var(--color-asfalto);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .vehiculo:not([aria-selected='true']):hover {
+      border-color: rgb(255 255 255 / 0.4);
+      color: #fff;
+    }
+  }
+  /* Las señales entran una detrás de otra al cambiar de vehículo */
+  .panel:not([hidden]) > article {
+    animation: entra 0.55s var(--ease-salida) both;
+    animation-delay: calc(var(--i) * 70ms);
+  }
+  @keyframes entra {
+    from {
+      opacity: 0;
+      translate: 0 18px;
+    }
+  }
+  .estado[data-puede] {
+    background: var(--color-amarillo);
+    color: var(--color-asfalto);
+  }
+</style>
+
+<script>
+  for (const raiz of document.querySelectorAll<HTMLElement>('[data-buscador]')) {
+    const campo = raiz.querySelector<HTMLInputElement>('[data-edad-campo]')!
+    const pestanas = [...raiz.querySelectorAll<HTMLAnchorElement>('[data-grupo]')]
+
+    function elegir(id: string) {
+      for (const p of pestanas) p.setAttribute('aria-selected', String(p.dataset.grupo === id))
+      for (const panel of raiz.querySelectorAll<HTMLElement>('[data-panel]')) panel.hidden = panel.dataset.panel !== id
+    }
+
+    // Lo que le pasa a cada permiso con la edad elegida
+    function pintarEdad() {
+      const edad = Math.min(80, Math.max(14, Number(campo.value) || 18))
+      for (const s of raiz.querySelectorAll<HTMLElement>('[data-edad-min]')) {
+        const min = Number(s.dataset.edadMin)
+        const cap = Number(s.dataset.edadCap) || 0
+        const estado = s.querySelector<HTMLElement>('[data-estado]')!
+        const puede = edad >= min || (cap > 0 && edad >= cap)
+        estado.toggleAttribute('data-puede', puede)
+        if (edad >= min) estado.textContent = '✓ Ya puedes'
+        else if (cap && edad >= cap) estado.textContent = '✓ Ya puedes, con CAP'
+        else {
+          const faltan = (cap || min) - edad
+          estado.textContent = faltan === 1 ? 'Te falta 1 año' : `Te faltan ${faltan} años`
+        }
+      }
+    }
+
+    for (const p of pestanas) {
+      p.addEventListener('click', (e) => {
+        e.preventDefault()
+        elegir(p.dataset.grupo!)
+        p.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' })
+      })
+      // Flechas entre vehículos, como cualquier grupo de pestañas
+      p.addEventListener('keydown', (e) => {
+        const i = pestanas.indexOf(p)
+        const j = e.key === 'ArrowRight' ? i + 1 : e.key === 'ArrowLeft' ? i - 1 : -1
+        if (j < 0 || j >= pestanas.length) return
+        e.preventDefault()
+        pestanas[j].focus()
+        elegir(pestanas[j].dataset.grupo!)
+      })
+    }
+    for (const b of raiz.querySelectorAll<HTMLButtonElement>('[data-edad]')) {
+      b.addEventListener('click', () => {
+        campo.value = String(Math.min(80, Math.max(14, (Number(campo.value) || 18) + Number(b.dataset.edad))))
+        pintarEdad()
+      })
+    }
+    campo.addEventListener('input', pintarEdad)
+    pintarEdad()
+  }
+</script>

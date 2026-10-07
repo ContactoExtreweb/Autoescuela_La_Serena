@@ -1,0 +1,30 @@
+---
+import Icono from './Icono.astro'
+import { CENTROS, tel } from '../lib/empresa.js'
+---
+
+<section class="relative overflow-hidden bg-senal py-20 text-white sm:py-28">
+  <div class="franja franja-clara absolute inset-x-0 top-0 opacity-30"></div>
+  <div class="contenedor grid gap-10 lg:grid-cols-[1.2fr_1fr] lg:items-end">
+    <div data-aparece>
+      <h2 class="text-5xl font-black sm:text-7xl">Tu carnet empieza con una llamada.</h2>
+      <p class="mt-6 max-w-lg text-lg text-white/85">
+        Te contamos precios, horarios y cuándo empieza el próximo curso. Sin compromiso.
+      </p>
+    </div>
+    <div class="grid gap-3" data-aparece style="--retraso:100ms">
+      {
+        CENTROS.map((c) => (
+          <a href={tel(c.telefono)} class="group flex items-center justify-between rounded-2xl bg-white/10 px-5 py-4 transition hover:bg-white/18">
+            <span class="font-semibold">{c.ciudad}</span>
+            <span class="inline-flex items-center gap-2 text-lg font-black whitespace-nowrap sm:text-xl">
+              <Icono nombre="phone" class="size-5 text-amarillo" />
+              {c.telefono}
+            </span>
+          </a>
+        ))
+      }
+      <a href="/contacto/" class="boton boton-amarillo mt-2">Prefiero que me llaméis <Icono nombre="arrow-right" class="size-4.5" /></a>
+    </div>
+  </div>
+</section>

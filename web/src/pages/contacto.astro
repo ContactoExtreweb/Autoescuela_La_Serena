@@ -1,0 +1,181 @@
+---
+import Base from '../layouts/Base.astro'
+import Cabeza from '../components/Cabeza.astro'
+import Icono from '../components/Icono.astro'
+import { CENTROS, EMPRESA, tel } from '../lib/empresa.js'
+import { PERMISOS } from '../lib/permisos.js'
+import { CURSOS } from '../lib/cursos.js'
+---
+
+<Base titulo="Contacto" descripcion="Pide información sobre cualquier permiso o curso. Te llamamos desde el centro que prefieras: Villanueva de la Serena, Don Benito o Navalvillar de Pela.">
+  <Cabeza
+    rotulo="Contacto"
+    titulo="Cuéntanos qué quieres sacarte."
+    texto="Déjanos tu teléfono y te llamamos desde el centro que prefieras. O llámanos tú: estamos en los tres."
+    migas={[{ href: '/contacto/', texto: 'Contacto' }]}
+  />
+
+  <div class="contenedor grid gap-12 py-14 sm:py-20 lg:grid-cols-[1fr_22rem] lg:gap-16">
+    {/* Netlify Forms: lo detecta en el build. El honeypot frena a los bots sin molestar a nadie. */}
+    <form name="contacto" method="POST" data-netlify="true" netlify-honeypot="bot-field" class="grid gap-6" data-formulario>
+      <input type="hidden" name="form-name" value="contacto" />
+      <p class="hidden"><label>No rellenar: <input name="bot-field" /></label></p>
+
+      <div class="grid gap-6 sm:grid-cols-2">
+        <label class="campo">
+          <span>Nombre</span>
+          <input name="nombre" required autocomplete="name" />
+        </label>
+        <label class="campo">
+          <span>Teléfono</span>
+          <input name="telefono" type="tel" required autocomplete="tel" inputmode="tel" />
+        </label>
+      </div>
+
+      <label class="campo">
+        <span>Email <small class="font-normal text-gris">(opcional)</small></span>
+        <input name="email" type="email" autocomplete="email" />
+      </label>
+
+      <label class="campo">
+        <span>Me interesa</span>
+        <select name="interes" data-interes>
+          <option value="">Aún no lo sé, aconsejadme</option>
+          <optgroup label="Permisos">
+            {PERMISOS.map((p) => <option>{`Permiso ${p.clase}`}</option>)}
+          </optgroup>
+          <optgroup label="Cursos">
+            {CURSOS.map((c) => <option>{`Curso de ${c.nombre}`}</option>)}
+            <option>Formación gratuita (desempleados)</option>
+            <option>Formación para empresas</option>
+          </optgroup>
+        </select>
+      </label>
+
+      <fieldset>
+        <legend class="mb-3 font-bold">Centro que prefieres</legend>
+        <div class="grid gap-2 sm:grid-cols-3">
+          {
+            CENTROS.map((c, i) => (
+              <label class="opcion">
+                <input type="radio" name="centro" value={c.ciudad} checked={i === 0} class="sr-only" />
+                <span>{c.ciudad}</span>
+              </label>
+            ))
+          }
+        </div>
+      </fieldset>
+
+      <label class="campo">
+        <span>Mensaje <small class="font-normal text-gris">(opcional)</small></span>
+        <textarea name="mensaje" rows="4" placeholder="Por ejemplo: qué horario te viene mejor"></textarea>
+      </label>
+
+      <label class="flex items-start gap-3 text-gris">
+        <input type="checkbox" name="privacidad" required class="mt-1 size-5 accent-[var(--color-senal)]" />
+        <span>He leído la <a href="/privacidad/" class="font-semibold text-azul underline">política de privacidad</a> y acepto que me contactéis para darme información.</span>
+      </label>
+
+      <div>
+        <button type="submit" class="boton boton-azul w-full sm:w-auto">Enviar <Icono nombre="arrow-right" class="size-4.5" /></button>
+        <p class="mt-4 hidden rounded-2xl bg-amarillo/30 p-4 font-semibold" data-gracias role="status">
+          ¡Recibido! Te llamamos en cuanto podamos.
+        </p>
+        <p class="mt-4 hidden rounded-2xl bg-red-500/15 p-4 font-semibold" data-error role="alert">
+          No se ha podido enviar. Llámanos a cualquiera de los centros, por favor.
+        </p>
+      </div>
+    </form>
+
+    <aside class="space-y-4">
+      {
+        CENTROS.map((c) => (
+          <a href={tel(c.telefono)} class="senal block p-6">
+            <span class="block text-white/80">{c.ciudad}</span>
+            <span class="mt-1 flex items-center gap-2 text-2xl font-black">
+              <Icono nombre="phone" class="size-5 text-amarillo" />
+              {c.telefono}
+            </span>
+            <span class="mt-1 block text-sm text-white/70">{c.direccion}</span>
+          </a>
+        ))
+      }
+      <a href={`mailto:${EMPRESA.email}`} class="flex items-center gap-3 rounded-2xl border border-filete p-5 font-semibold break-all">
+        <Icono nombre="mail" class="size-5 shrink-0 text-azul" />{EMPRESA.email}
+      </a>
+    </aside>
+  </div>
+</Base>
+
+<style>
+  .campo {
+    display: grid;
+    gap: 0.5rem;
+    font-weight: 700;
+  }
+  .campo :is(input, select, textarea) {
+    width: 100%;
+    min-height: 3.25rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.9rem;
+    border: 2px solid var(--color-filete);
+    background: var(--color-papel-2);
+    font-weight: 500;
+    font-size: 1.0625rem;
+  }
+  .campo :is(input, select, textarea):focus {
+    border-color: var(--color-senal);
+    outline: none;
+  }
+  .opcion span {
+    display: grid;
+    place-items: center;
+    min-height: 3.25rem;
+    padding: 0.5rem;
+    border-radius: 0.9rem;
+    border: 2px solid var(--color-filete);
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+  }
+  .opcion input:checked + span {
+    background: var(--color-senal);
+    border-color: var(--color-senal);
+    color: #fff;
+  }
+  .opcion input:focus-visible + span {
+    outline: 3px solid var(--color-amarillo);
+    outline-offset: 2px;
+  }
+</style>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-formulario]')!
+
+  // Lo que eligió en el buscador o en una ficha («Lo quiero») llega en ?interes=
+  const interes = new URLSearchParams(location.search).get('interes')
+  const select = form.querySelector<HTMLSelectElement>('[data-interes]')!
+  if (interes && [...select.options].some((o) => o.value === interes)) select.value = interes
+
+  // Envío sin salir de la página. Sin JS, el POST normal también llega a Netlify.
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const boton = form.querySelector<HTMLButtonElement>('button[type=submit]')!
+    boton.disabled = true
+    try {
+      const r = await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(new FormData(form) as any).toString(),
+      })
+      if (!r.ok) throw new Error(String(r.status))
+      form.reset()
+      form.querySelector('[data-gracias]')!.classList.remove('hidden')
+      form.querySelector('[data-error]')!.classList.add('hidden')
+    } catch {
+      form.querySelector('[data-error]')!.classList.remove('hidden')
+    } finally {
+      boton.disabled = false
+    }
+  })
+</script>

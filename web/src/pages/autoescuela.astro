@@ -1,0 +1,86 @@
+---
+import { Image } from 'astro:assets'
+import Base from '../layouts/Base.astro'
+import Cabeza from '../components/Cabeza.astro'
+import Sellos from '../components/Sellos.astro'
+import Llamar from '../components/Llamar.astro'
+import { foto } from '../lib/fotos.js'
+
+const HISTORIA = [
+  {
+    cuando: 'Años 70',
+    titulo: 'Una autoescuela de pueblo',
+    texto:
+      'La Serena Autoescuelas nace con Benito Benítez como profesor y director, y se gana un nombre en la comarca de La Serena y las Vegas Altas.',
+  },
+  {
+    cuando: 'Años 90',
+    titulo: 'El relevo',
+    texto:
+      'Su hijo, Benito Benítez Nieto, toma las riendas y convierte la autoescuela en un grupo de empresas, con medios técnicos y un equipo de referencia en la región.',
+  },
+  {
+    cuando: 'Siglo XXI',
+    titulo: 'Calidad total',
+    texto:
+      'Se modernizan los centros y la flota, llega la certificación de calidad ISO 9001 y de gestión ambiental ISO 14001, y se amplía la formación para empresas y desempleados.',
+  },
+]
+---
+
+<Base
+  titulo="La autoescuela: historia, flota y aulas"
+  descripcion="La Serena Autoescuelas: una autoescuela familiar desde los años 70, con flota propia de camiones, autobús y remolques y certificación de calidad."
+>
+  <Cabeza
+    rotulo="La autoescuela"
+    titulo="Una familia al volante desde los 70."
+    texto="De padre a hijo, de una autoescuela a tres centros y una flota con la que se sacan todos los permisos."
+    migas={[{ href: '/autoescuela/', texto: 'La autoescuela' }]}
+  />
+
+  <section class="py-16 sm:py-24">
+    <div class="contenedor grid gap-6 md:grid-cols-3">
+      {
+        HISTORIA.map((h, i) => (
+          <article class="relative rounded-3xl border border-filete bg-papel-2 p-7" data-aparece style={`--retraso:${i * 90}ms`}>
+            <p class="text-5xl font-black text-azul">{h.cuando}</p>
+            <h2 class="mt-6 text-2xl font-extrabold">{h.titulo}</h2>
+            <p class="mt-3 text-gris">{h.texto}</p>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  {/* La flota, a toda pantalla: es lo que les diferencia */}
+  <section class="relative isolate overflow-hidden bg-asfalto py-24 text-white sm:py-36">
+    <Image src={foto('flota')} alt="Camiones, minibús y remolque de prácticas de La Serena Autoescuelas" widths={[640, 1162]} sizes="100vw" class="absolute inset-0 -z-10 size-full object-cover opacity-55" />
+    <div class="absolute inset-0 -z-10 bg-linear-to-r from-asfalto to-transparent"></div>
+    <div class="contenedor" data-aparece>
+      <p class="rotulo !text-amarillo mb-4">Nuestra flota</p>
+      <h2 class="max-w-2xl text-5xl font-black sm:text-7xl">Aprendes con el vehículo de verdad.</h2>
+      <p class="mt-6 max-w-lg text-lg text-white/85">
+        Camiones rígidos y articulados, camión grúa, minibús y remolques de prácticas, de las mejores marcas y renovados cada
+        año.
+      </p>
+    </div>
+  </section>
+
+  <section class="py-16 sm:py-24">
+    <div class="contenedor">
+      <p class="rotulo mb-4">Instalaciones</p>
+      <h2 class="max-w-3xl text-4xl font-black sm:text-6xl">Aulas preparadas para teórica y cursos.</h2>
+      <div class="mt-10 grid gap-4 md:grid-cols-[1.4fr_1fr]">
+        <Image src={foto('aula')} alt="Aula de teórica con proyector" widths={[640, 1162]} sizes="(min-width: 768px) 60vw, 100vw" class="aspect-[4/3] size-full rounded-3xl object-cover" data-aparece />
+        <div class="grid gap-4">
+          <Image src={foto('trailer')} alt="Tráiler de prácticas" widths={[480, 800]} sizes="(min-width: 768px) 40vw, 100vw" class="aspect-[16/10] size-full rounded-3xl object-cover" data-aparece />
+          <Image src={foto('villanueva-1')} alt="Recepción del centro de Villanueva de la Serena" widths={[480, 800]} sizes="(min-width: 768px) 40vw, 100vw" class="aspect-[16/10] size-full rounded-3xl object-cover" data-aparece />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <Sellos />
+  <Llamar />
+</Base>

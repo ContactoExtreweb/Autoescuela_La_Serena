@@ -1,0 +1,72 @@
+---
+import Base from '../../layouts/Base.astro'
+import Cabeza from '../../components/Cabeza.astro'
+import Buscador from '../../components/Buscador.astro'
+import Faltas from '../../components/Faltas.astro'
+import Icono from '../../components/Icono.astro'
+import Llamar from '../../components/Llamar.astro'
+import { GRUPOS, PERMISOS, edadTexto } from '../../lib/permisos.js'
+---
+
+<Base
+  titulo="Permisos de conducir: moto, coche, camión, autobús y tractor"
+  descripcion="Todos los permisos de conducir en Villanueva de la Serena, Don Benito y Navalvillar de Pela: AM, A1, A2, A, B, B+E, B96, BTP, C1, C, C+E, D1, D, D+E y licencia LVA."
+>
+  <Cabeza
+    rotulo="Permisos"
+    titulo="Todos los carnets, en una sola autoescuela."
+    texto="Diecisiete permisos, del ciclomotor al autobús con remolque. Elige qué quieres conducir y te decimos cuál necesitas."
+    migas={[{ href: '/permisos/', texto: 'Permisos' }]}
+  />
+
+  <section class="bg-asfalto pt-4 pb-16 sm:pb-24">
+    <div class="contenedor"><Buscador /></div>
+  </section>
+
+  {/* La lista completa: también es lo que ve quien llega sin JS desde el buscador */}
+  {
+    GRUPOS.map((g) => (
+      <section id={g.id} class="border-b border-filete py-14 sm:py-20">
+        <div class="contenedor grid gap-8 lg:grid-cols-[18rem_1fr]">
+          <div class="lg:sticky lg:top-24 lg:self-start">
+            <Icono nombre={g.icono} class="size-10 text-azul" />
+            <h2 class="mt-3 text-3xl font-black sm:text-4xl">{g.titulo}</h2>
+          </div>
+          <ul class="divide-y divide-filete border-y border-filete">
+            {PERMISOS.filter((p) => p.grupo === g.id).map((p) => (
+              <li data-aparece>
+                <a href={`/permisos/${p.slug}/`} class="group grid grid-cols-[4rem_1fr_auto] items-center gap-4 py-5 sm:gap-6">
+                  <span class="grid h-16 place-items-center rounded-xl bg-senal text-xl font-black text-white transition group-hover:-rotate-3">
+                    {p.clase}
+                  </span>
+                  <span>
+                    <span class="block text-xl font-extrabold">{p.nombre}</span>
+                    <span class="block text-gris">{p.conduce[0]}</span>
+                    <span class="mt-1 block text-sm font-bold text-azul">Desde {edadTexto(p)}</span>
+                  </span>
+                  <Icono nombre="arrow-right" class="size-6 text-azul transition group-hover:translate-x-1" />
+                </a>
+              </li>
+            ))}
+            {(g.cursos ?? []).length > 0 && (
+              <li class="py-5 text-gris">
+                Para carretilla, grúa, plataformas y retro no hace falta permiso, sino un certificado:{' '}
+                <a href="/cursos/" class="font-bold text-azul underline">mira los cursos</a>.
+              </li>
+            )}
+          </ul>
+        </div>
+      </section>
+    ))
+  }
+
+  <section id="examen" class="py-16 sm:py-24">
+    <div class="contenedor">
+      <p class="rotulo mb-4">El examen práctico</p>
+      <h2 class="mb-10 max-w-3xl text-4xl font-black sm:text-6xl">¿Cuándo se suspende?</h2>
+      <Faltas />
+    </div>
+  </section>
+
+  <Llamar />
+</Base>

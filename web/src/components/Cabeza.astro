@@ -1,0 +1,46 @@
+---
+// Cabecera de las páginas interiores: migas, rótulo, titular y entradilla. El slot va debajo (botones, datos).
+interface Props {
+  rotulo: string
+  titulo: string
+  texto?: string
+  migas?: { href: string; texto: string }[]
+}
+const { rotulo, titulo, texto, migas = [] } = Astro.props
+---
+
+<section class="relative overflow-hidden bg-asfalto pt-10 pb-14 text-white sm:pt-14 sm:pb-20">
+  <div class="contenedor">
+    {
+      migas.length > 0 && (
+        <nav aria-label="Estás en" class="cabeza-in mb-8 flex flex-wrap items-center gap-2 text-sm text-white/60">
+          <a href="/" class="hover:text-white">Inicio</a>
+          {migas.map((m) => (
+            <>
+              <span aria-hidden="true">/</span>
+              <a href={m.href} class="hover:text-white">{m.texto}</a>
+            </>
+          ))}
+        </nav>
+      )
+    }
+    <p class="rotulo cabeza-in !text-amarillo mb-4">{rotulo}</p>
+    <h1 class="cabeza-in max-w-4xl text-[clamp(2.6rem,8vw,5.5rem)] font-black leading-[0.95]" style="--r:70ms">{titulo}</h1>
+    {texto && <p class="cabeza-in mt-6 max-w-2xl text-lg text-white/80 sm:text-xl" style="--r:140ms">{texto}</p>}
+    <div class="cabeza-in" style="--r:200ms"><slot /></div>
+  </div>
+  <div class="franja franja-clara absolute inset-x-0 bottom-0 opacity-15"></div>
+</section>
+
+<style>
+  .cabeza-in {
+    animation: sube 0.8s var(--ease-salida) both;
+    animation-delay: var(--r, 0ms);
+  }
+  @keyframes sube {
+    from {
+      opacity: 0;
+      translate: 0 24px;
+    }
+  }
+</style>

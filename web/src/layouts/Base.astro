@@ -1,0 +1,96 @@
+---
+import Cabecera from '../components/Cabecera.astro'
+import Pie from '../components/Pie.astro'
+import { CENTROS, EMPRESA } from '../lib/empresa.js'
+import '../styles/global.css'
+
+interface Props {
+  titulo: string
+  descripcion: string
+}
+const { titulo, descripcion } = Astro.props
+const tituloCompleto = titulo.includes('La Serena') ? titulo : `${titulo} · La Serena Autoescuelas`
+const canonica = new URL(Astro.url.pathname, Astro.site).href
+
+// Autoescuela con sus tres centros: así Google une la web con las tres fichas de Maps
+const datos = {
+  '@context': 'https://schema.org',
+  '@type': 'DrivingSchool',
+  name: EMPRESA.nombre,
+  url: EMPRESA.dominio,
+  email: EMPRESA.email,
+  sameAs: [EMPRESA.facebook],
+  department: CENTROS.map((c) => ({
+    '@type': 'DrivingSchool',
+    name: `${EMPRESA.nombre} ${c.ciudad}`,
+    telephone: `+34 ${c.telefono}`,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: c.direccion,
+      postalCode: c.cp,
+      addressLocality: c.ciudad,
+      addressRegion: 'Badajoz',
+      addressCountry: 'ES',
+    },
+  })),
+}
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{tituloCompleto}</title>
+    <meta name="description" content={descripcion} />
+    <link rel="canonical" href={canonica} />
+    <meta property="og:title" content={tituloCompleto} />
+    <meta property="og:description" content={descripcion} />
+    <meta property="og:url" content={canonica} />
+    <meta property="og:locale" content="es_ES" />
+    <meta name="theme-color" content="#0050a2" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    {/* Tema: el que eligió el visitante o, si no eligió, el del sistema. Antes de pintar, sin parpadeo. */}
+    <script is:inline>
+      {
+        let tema = null
+        try {
+          tema = localStorage.getItem('tema')
+        } catch {}
+        if (!tema) tema = matchMedia('(prefers-color-scheme: dark)').matches ? 'oscuro' : 'claro'
+        document.documentElement.dataset.tema = tema
+      }
+    </script>
+    {/* Los bloques con data-aparece entran la primera vez que se ven. Sin JS o con movimiento reducido, quietos y visibles. */}
+    <script is:inline>
+      if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.documentElement.classList.add('anima')
+        addEventListener('DOMContentLoaded', () => {
+          const vista = new IntersectionObserver(
+            (entradas) => {
+              for (const e of entradas) {
+                if (!e.isIntersecting) continue
+                e.target.setAttribute('data-visto', '')
+                vista.unobserve(e.target)
+              }
+            },
+            { rootMargin: '0px 0px -8% 0px' },
+          )
+          document.querySelectorAll('[data-aparece]').forEach((el) => vista.observe(el))
+        })
+      }
+    </script>
+    <script type="application/ld+json" set:html={JSON.stringify(datos)} />
+  </head>
+  <body class="min-h-dvh">
+    <a href="#contenido" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded focus:bg-papel-2 focus:p-3">
+      Saltar al contenido
+    </a>
+    <Cabecera />
+    <main id="contenido">
+      <slot />
+    </main>
+    <Pie />
+  </body>
+</html>

@@ -1,0 +1,293 @@
+---
+import { Image } from 'astro:assets'
+import Base from '../layouts/Base.astro'
+import Icono from '../components/Icono.astro'
+import Buscador from '../components/Buscador.astro'
+import Carretera from '../components/Carretera.astro'
+import Sellos from '../components/Sellos.astro'
+import Llamar from '../components/Llamar.astro'
+import { CENTROS, ENLACES, tel, mapa } from '../lib/empresa.js'
+import { CURSOS } from '../lib/cursos.js'
+import { foto } from '../lib/fotos.js'
+
+const PROFESIONALES = ['C1', 'C', 'C+E', 'D1', 'D', 'D+E']
+---
+
+<Base
+  titulo="La Serena Autoescuelas · Autoescuela en Villanueva de la Serena, Don Benito y Navalvillar de Pela"
+  descripcion="Todos los permisos de conducir, del ciclomotor al tráiler, CAP y cursos profesionales. Autoescuela en Villanueva de la Serena, Don Benito y Navalvillar de Pela desde los años 70."
+>
+  {/* PORTADA */}
+  <section class="relative isolate flex min-h-[calc(100svh-var(--alto-cabecera)-3.5rem)] items-end overflow-hidden bg-asfalto text-white">
+    <Image
+      src={foto('trailer')}
+      alt="Camión con semirremolque de La Serena Autoescuelas en la pista de prácticas"
+      widths={[640, 960, 1162]}
+      sizes="100vw"
+      loading="eager"
+      fetchpriority="high"
+      class="portada-foto absolute inset-0 -z-10 size-full object-cover object-[62%_60%]"
+    />
+    <div class="absolute inset-0 -z-10 bg-linear-to-t from-asfalto via-asfalto/55 to-asfalto/10 md:bg-linear-to-r md:from-asfalto/95 md:from-15% md:via-asfalto/65 md:via-45% md:to-asfalto/0"></div>
+
+    <div class="contenedor pt-28 pb-12 md:pb-20">
+      <p class="portada-in mb-5 inline-flex items-center gap-2 rounded-full bg-white/12 px-3.5 py-1.5 text-sm font-semibold backdrop-blur-sm">
+        <Icono nombre="map-pin" class="size-4 text-amarillo" /> Villanueva, Don Benito y Navalvillar de Pela
+      </p>
+      <h1 class="portada-in max-w-2xl text-[clamp(3rem,10.5vw,6.25rem)] font-black leading-[0.92]" style="--r:80ms">
+        Del ciclomotor <span class="text-amarillo">al tráiler.</span>
+      </h1>
+      <p class="portada-in mt-6 max-w-xl text-lg text-white/85 sm:text-xl" style="--r:160ms">
+        Todos los permisos de conducir y la formación para trabajar al volante. Enseñando en La Serena desde los años 70.
+      </p>
+      <div class="portada-in mt-8 flex flex-wrap gap-3" style="--r:240ms">
+        <a href="#buscador" class="boton boton-amarillo">Encuentra tu carnet <Icono nombre="arrow-right" class="size-4.5" /></a>
+        <a href="/contacto/" class="boton boton-borde text-white">Pide información</a>
+      </div>
+    </div>
+  </section>
+
+  <Carretera />
+
+  {/* BUSCADOR: la pieza que hace la web útil */}
+  <section id="buscador" class="bg-asfalto py-16 sm:py-24">
+    <div class="contenedor">
+      <p class="rotulo !text-amarillo mb-4">Encuentra tu permiso</p>
+      <Buscador />
+    </div>
+  </section>
+
+  {/* ALUMNOS: lo que más usan, a un toque */}
+  <section class="bg-asfalto pb-16 sm:pb-24">
+    <div class="contenedor">
+      <div class="grid gap-3 rounded-3xl bg-white/6 p-3 sm:grid-cols-3">
+        <a href={ENLACES.test} target="_blank" rel="noopener" class="alumno">
+          <Icono nombre="clipboard-check" class="size-7 text-amarillo" />
+          <span><b>Test online</b><small>Entra con tu usuario de alumno</small></span>
+          <Icono nombre="arrow-up-right" class="ml-auto size-5 opacity-60" />
+        </a>
+        <a href={ENLACES.notas} target="_blank" rel="noopener" class="alumno">
+          <Icono nombre="search-check" class="size-7 text-amarillo" />
+          <span><b>Nota del examen</b><small>Consúltala en la DGT</small></span>
+          <Icono nombre="arrow-up-right" class="ml-auto size-5 opacity-60" />
+        </a>
+        <a href="/permisos/#examen" class="alumno">
+          <Icono nombre="route" class="size-7 text-amarillo" />
+          <span><b>¿Cuándo se suspende?</b><small>Prueba el contador de faltas</small></span>
+          <Icono nombre="arrow-right" class="ml-auto size-5 opacity-60" />
+        </a>
+      </div>
+    </div>
+  </section>
+
+  {/* PROFESIONALES: en lo que destacan */}
+  <section class="overflow-hidden py-20 sm:py-28">
+    <div class="contenedor grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+      <div data-aparece>
+        <p class="rotulo mb-5">Permisos profesionales</p>
+        <h2 class="text-4xl font-black sm:text-6xl">Tu trabajo empieza en nuestra pista.</h2>
+        <p class="mt-6 max-w-xl text-lg text-gris">
+          Camión, tráiler, autobús y el CAP para trabajar de conductor. Es en lo que más destacamos: flota propia de
+          camiones, autobús y remolques, renovada cada año, y cursos en horario adaptado, también en fin de semana.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-2">
+          {
+            PROFESIONALES.map((c) => (
+              <a
+                href={`/permisos/${c.toLowerCase().replace('+', '-')}/`}
+                class="grid h-14 min-w-14 place-items-center rounded-lg bg-senal px-3 text-xl font-black text-white transition hover:-translate-y-0.5"
+              >
+                {c}
+              </a>
+            ))
+          }
+          <a href="/cursos/cap/" class="grid h-14 place-items-center rounded-lg bg-amarillo px-4 text-xl font-black text-asfalto">CAP</a>
+          <a href="/cursos/adr/" class="grid h-14 place-items-center rounded-lg border-2 border-filete px-4 text-xl font-black">ADR</a>
+        </div>
+        <dl class="mt-10 grid grid-cols-3 gap-4 border-t border-filete pt-6">
+          <div><dt class="text-sm text-gris">CAP inicial</dt><dd class="text-3xl font-black">140 h</dd></div>
+          <div><dt class="text-sm text-gris">Renovación CAP</dt><dd class="text-3xl font-black">35 h</dd></div>
+          <div><dt class="text-sm text-gris">Horario</dt><dd class="text-3xl font-black">Finde</dd></div>
+        </dl>
+      </div>
+      <div class="relative" data-aparece style="--retraso:120ms">
+        <Image
+          src={foto('flota')}
+          alt="La flota de La Serena: camiones, minibús y remolque de prácticas"
+          widths={[640, 960, 1162]}
+          sizes="(min-width: 1024px) 50vw, 100vw"
+          class="aspect-[4/3] w-full rounded-3xl object-cover"
+        />
+        <div class="senal absolute -bottom-6 left-4 px-5 py-4 sm:-left-6">
+          <p class="text-sm font-semibold text-white/80">Flota propia</p>
+          <p class="text-xl font-black">Renovada cada año</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* FORMACIÓN */}
+  <section class="bg-papel-2 py-20 sm:py-28">
+    <div class="contenedor">
+      <div class="grid gap-6 lg:grid-cols-[1fr_1.3fr] lg:gap-16">
+        <div data-aparece>
+          <p class="rotulo mb-5">Cursos y certificados</p>
+          <h2 class="text-4xl font-black sm:text-6xl">Formación que te da trabajo.</h2>
+          <p class="mt-6 text-lg text-gris">
+            Centro homologado por la Junta de Extremadura. Si estás en paro, muchos cursos son gratis; si eres empresa,
+            puedes pagarlos con tu crédito de formación.
+          </p>
+          <div class="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+            <a href="/cursos/#gratis" class="group flex items-center gap-4 rounded-2xl bg-amarillo p-5 text-asfalto">
+              <span class="text-4xl font-black whitespace-nowrap">0 €</span>
+              <span class="font-bold leading-tight">Cursos gratis<br /><span class="font-medium">para desempleados (SEXPE)</span></span>
+              <Icono nombre="arrow-right" class="ml-auto size-5 transition group-hover:translate-x-1" />
+            </a>
+            <a href="/cursos/#empresas" class="group flex items-center gap-4 rounded-2xl bg-senal p-5 text-white">
+              <Icono nombre="badge-check" class="size-9 shrink-0" />
+              <span class="font-bold leading-tight">Formación bonificada<br /><span class="font-medium text-white/80">para empresas (FUNDAE)</span></span>
+              <Icono nombre="arrow-right" class="ml-auto size-5 transition group-hover:translate-x-1" />
+            </a>
+          </div>
+        </div>
+        <ul class="divide-y divide-filete border-y border-filete">
+          {
+            CURSOS.map((c, i) => (
+              <li data-aparece style={`--retraso:${i * 50}ms`}>
+                <a href={`/cursos/${c.slug}/`} class="curso group flex items-center gap-4 py-5">
+                  <span class="grid size-12 shrink-0 place-items-center rounded-xl bg-senal/10 text-azul transition group-hover:bg-senal group-hover:text-white">
+                    <Icono nombre={c.icono} class="size-6" />
+                  </span>
+                  <span class="min-w-0">
+                    <span class="block text-xl font-extrabold">{c.nombre}</span>
+                    <span class="block text-gris">{c.resumen}</span>
+                  </span>
+                  <Icono nombre="arrow-right" class="ml-auto size-5 shrink-0 text-azul transition group-hover:translate-x-1" />
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  {/* HISTORIA */}
+  <section class="py-20 sm:py-28">
+    <div class="contenedor grid items-center gap-12 lg:grid-cols-2">
+      <Image
+        src={foto('aula')}
+        alt="Aula de teórica de La Serena Autoescuelas"
+        widths={[640, 960, 1162]}
+        sizes="(min-width: 1024px) 50vw, 100vw"
+        class="aspect-[4/3] w-full rounded-3xl object-cover lg:order-2"
+        data-aparece
+      />
+      <div>
+        <p class="rotulo mb-5">Desde los años 70</p>
+        <h2 class="text-4xl font-black sm:text-6xl">Una familia al volante desde los 70.</h2>
+        <ol class="mt-10 space-y-8 border-l-4 border-dashed border-senal/40 pl-8">
+          <li class="relative" data-aparece>
+            <span class="absolute top-1 -left-[2.75rem] size-5 rounded-full border-4 border-papel bg-senal"></span>
+            <p class="text-sm font-extrabold tracking-widest text-azul uppercase">Años 70</p>
+            <p class="mt-1 text-lg">Benito Benítez abre la autoescuela como profesor y director.</p>
+          </li>
+          <li class="relative" data-aparece style="--retraso:80ms">
+            <span class="absolute top-1 -left-[2.75rem] size-5 rounded-full border-4 border-papel bg-senal"></span>
+            <p class="text-sm font-extrabold tracking-widest text-azul uppercase">Años 90</p>
+            <p class="mt-1 text-lg">Su hijo, Benito Benítez Nieto, toma el relevo y la convierte en un grupo con tres centros.</p>
+          </li>
+          <li class="relative" data-aparece style="--retraso:160ms">
+            <span class="absolute top-1 -left-[2.75rem] size-5 rounded-full border-4 border-papel bg-amarillo"></span>
+            <p class="text-sm font-extrabold tracking-widest text-azul uppercase">Hoy</p>
+            <p class="mt-1 text-lg">Flota renovada, calidad certificada y formación para empresas y desempleados.</p>
+          </li>
+        </ol>
+        <a href="/autoescuela/" class="boton boton-borde mt-10 text-azul">Conoce la autoescuela <Icono nombre="arrow-right" class="size-4.5" /></a>
+      </div>
+    </div>
+  </section>
+
+  {/* CENTROS */}
+  <section class="bg-papel-2 py-20 sm:py-28" id="centros">
+    <div class="contenedor">
+      <p class="rotulo mb-5">Tres centros</p>
+      <h2 class="max-w-3xl text-4xl font-black sm:text-6xl">Siempre tienes uno cerca.</h2>
+      <div class="mt-12 grid gap-6 md:grid-cols-3">
+        {
+          CENTROS.map((c, i) => (
+            <article class="overflow-hidden rounded-3xl border border-filete bg-papel" data-aparece style={`--retraso:${i * 80}ms`}>
+              <Image src={foto(c.foto)} alt={`Centro de ${c.ciudad}`} widths={[480, 800]} sizes="(min-width: 768px) 33vw, 100vw" class="aspect-[16/10] w-full object-cover" />
+              <div class="p-6">
+                <h3 class="text-2xl font-extrabold">{c.ciudad}</h3>
+                <a href={mapa(c)} target="_blank" rel="noopener" class="mt-2 flex items-start gap-2 text-gris hover:text-tinta">
+                  <Icono nombre="map-pin" class="mt-1 size-4 shrink-0" />
+                  {c.direccion}, {c.cp}
+                </a>
+                <div class="mt-5 flex gap-2">
+                  <a href={tel(c.telefono)} class="boton boton-azul !min-h-11 flex-1 !px-3 text-[15px]">
+                    <Icono nombre="phone" class="size-4" />{c.telefono}
+                  </a>
+                  <a href={mapa(c)} target="_blank" rel="noopener" class="boton boton-borde !min-h-11 !px-4 text-[15px] text-azul">Cómo llegar</a>
+                </div>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <Sellos />
+  <Llamar />
+</Base>
+
+<style>
+  .alumno {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-radius: 1.1rem;
+    padding: 1.1rem 1.25rem;
+    color: #fff;
+    transition: background-color 0.2s;
+  }
+  .alumno span {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+  }
+  .alumno b {
+    font-size: 1.1rem;
+    font-weight: 800;
+  }
+  .alumno small {
+    font-size: 0.9rem;
+    color: rgb(255 255 255 / 0.65);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .alumno:hover {
+      background: rgb(255 255 255 / 0.08);
+    }
+  }
+
+  /* Entrada de la portada: CSS puro, termina siempre aunque falle el JS */
+  .portada-in {
+    animation: sube 0.9s var(--ease-salida) both;
+    animation-delay: var(--r, 0ms);
+  }
+  .portada-foto {
+    animation: acerca 2.4s var(--ease-salida) both;
+  }
+  @keyframes sube {
+    from {
+      opacity: 0;
+      translate: 0 30px;
+    }
+  }
+  @keyframes acerca {
+    from {
+      scale: 1.08;
+    }
+  }
+</style>

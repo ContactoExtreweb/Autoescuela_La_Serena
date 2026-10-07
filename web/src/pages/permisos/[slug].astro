@@ -1,0 +1,141 @@
+---
+import Base from '../../layouts/Base.astro'
+import Cabeza from '../../components/Cabeza.astro'
+import Icono from '../../components/Icono.astro'
+import Aside from '../../components/Aside.astro'
+import { PERMISOS, GRUPOS, camino, edadTexto } from '../../lib/permisos.js'
+
+export function getStaticPaths() {
+  return PERMISOS.map((p) => ({ params: { slug: p.slug }, props: { p } }))
+}
+
+const { p } = Astro.props
+const grupo = GRUPOS.find((g) => g.id === p.grupo)
+const antes = camino(p)
+const despues = PERMISOS.filter((x) => x.requiere === p.slug)
+const profesional = p.grupo === 'camion' || p.grupo === 'autobus'
+const requisitos = [
+  `Edad mínima: ${edadTexto(p)}`,
+  ...(p.requiere ? [`Tener el permiso ${antes.at(-1).clase} en vigor`] : []),
+  ...(p.requisitos ?? []),
+]
+---
+
+<Base
+  titulo={`Permiso ${p.clase}: ${p.nombre.toLowerCase()}`}
+  descripcion={`Sácate el permiso ${p.clase} (${p.nombre.toLowerCase()}) en La Serena Autoescuelas: qué puedes conducir, edad mínima y requisitos. Villanueva de la Serena, Don Benito y Navalvillar de Pela.`}
+>
+  <Cabeza
+    rotulo={`Permiso ${p.clase}`}
+    titulo={p.nombre}
+    migas={[
+      { href: '/permisos/', texto: 'Permisos' },
+      { href: `/permisos/${p.slug}/`, texto: p.clase },
+    ]}
+  >
+    <div class="mt-8 flex flex-wrap items-center gap-3">
+      <span class="senal grid h-20 min-w-20 place-items-center px-4 text-4xl font-black">{p.clase}</span>
+      <span class="rounded-full bg-white/10 px-4 py-2 font-bold">Desde {edadTexto(p)}</span>
+    </div>
+  </Cabeza>
+
+  <div class="contenedor grid gap-12 py-14 sm:py-20 lg:grid-cols-[1fr_22rem] lg:gap-16">
+    <div class="space-y-14">
+      <section>
+        <h2 class="text-3xl font-black sm:text-4xl">Qué puedes conducir</h2>
+        <ul class="mt-6 space-y-3">
+          {
+            p.conduce.map((c) => (
+              <li class="flex gap-3 text-lg">
+                <Icono nombre="check" class="mt-1 size-5 shrink-0 text-azul" />
+                {c}
+              </li>
+            ))
+          }
+        </ul>
+        {p.notas?.map((n) => <p class="mt-6 rounded-2xl bg-amarillo/25 p-4 font-semibold">{n}</p>)}
+      </section>
+
+      <section>
+        <h2 class="text-3xl font-black sm:text-4xl">Qué necesitas</h2>
+        <ul class="mt-6 space-y-3">
+          {
+            requisitos.map((r) => (
+              <li class="flex gap-3 text-lg">
+                <Icono nombre="clipboard-check" class="mt-1 size-5 shrink-0 text-azul" />
+                {r}
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      {
+        p.examen && (
+          <section>
+            <h2 class="text-3xl font-black sm:text-4xl">El examen</h2>
+            <ol class="mt-6 space-y-3">
+              {p.examen.map((e, i) => (
+                <li class="flex gap-3 text-lg">
+                  <span class="grid size-7 shrink-0 place-items-center rounded-full bg-senal text-sm font-black text-white">{i + 1}</span>
+                  {e}
+                </li>
+              ))}
+            </ol>
+          </section>
+        )
+      }
+
+      {/* El camino: lo que va antes y lo que puedes sacarte después */}
+      <section>
+        <h2 class="text-3xl font-black sm:text-4xl">Tu camino</h2>
+        <ol class="mt-8 flex flex-wrap items-center gap-2">
+          {
+            antes.map((a) => (
+              <li class="flex items-center gap-2">
+                <a href={`/permisos/${a.slug}/`} class="grid h-14 min-w-14 place-items-center rounded-lg border-2 border-senal px-3 text-xl font-black text-azul">
+                  {a.clase}
+                </a>
+                <Icono nombre="arrow-right" class="size-5 text-gris" />
+              </li>
+            ))
+          }
+          <li aria-current="step" class="senal grid h-16 min-w-16 place-items-center px-4 text-2xl font-black">{p.clase}</li>
+          {
+            despues.length > 0 && (
+              <li class="flex items-center gap-2">
+                <Icono nombre="arrow-right" class="size-5 text-gris" />
+                {despues.map((d) => (
+                  <a href={`/permisos/${d.slug}/`} class="grid h-14 min-w-14 place-items-center rounded-lg border-2 border-dashed border-filete px-3 text-xl font-black text-gris hover:text-azul">
+                    {d.clase}
+                  </a>
+                ))}
+              </li>
+            )
+          }
+        </ol>
+        {antes.length === 0 && despues.length === 0 && <p class="mt-4 text-gris">No necesitas ningún permiso antes.</p>}
+        {despues.length > 0 && <p class="mt-4 text-gris">Con línea discontinua, lo que puedes sacarte después.</p>}
+      </section>
+
+      {
+        profesional && (
+          <a href="/cursos/cap/" class="group flex items-center gap-5 rounded-3xl bg-amarillo p-6 text-asfalto sm:p-8">
+            <span class="text-4xl font-black">CAP</span>
+            <span>
+              <span class="block text-xl font-extrabold">¿Vas a trabajar de conductor?</span>
+              <span class="block">Necesitas el CAP. Lo hacemos junto con el permiso, en horario adaptado.</span>
+            </span>
+            <Icono nombre="arrow-right" class="ml-auto size-6 shrink-0 transition group-hover:translate-x-1" />
+          </a>
+        )
+      }
+
+      <a href={`/permisos/#${grupo.id}`} class="inline-flex items-center gap-2 font-bold text-azul">
+        <Icono nombre="arrow-right" class="size-4 rotate-180" /> Más permisos de {grupo.titulo.toLowerCase()}
+      </a>
+    </div>
+
+    <Aside interes={`Permiso ${p.clase}`} />
+  </div>
+</Base>

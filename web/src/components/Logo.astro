@@ -1,0 +1,23 @@
+---
+// Su logotipo redibujado: la «A» de carretera en perspectiva y el nombre en texto vivo (se lee en los dos temas).
+// Cuando nos pasen el logo en vector, se cambia aquí.
+interface Props {
+  class?: string
+  /** Sobre fondo oscuro fijo (pie, portada): el texto en blanco */
+  claro?: boolean
+}
+const { class: clase = '', claro = false } = Astro.props
+---
+
+<span class:list={['inline-flex items-center gap-2.5 leading-none', clase]}>
+  <svg viewBox="0 0 40 36" class="h-[1.9em] w-auto shrink-0" aria-hidden="true">
+    <path d="M15.5 0h6L10.5 36H0z" fill={claro ? '#fff' : 'var(--color-senal)'} />
+    <path d="M24 0h5.5L40 36h-7z" fill={claro ? '#fff' : 'var(--color-senal)'} opacity=".85" />
+  </svg>
+  <span class="flex flex-col">
+    <span class:list={['text-[1.15em] font-black tracking-tight', claro ? 'text-white' : 'text-tinta']}>
+      La<span class="tracking-[-0.01em]">SERENA</span>
+    </span>
+    <span class:list={['text-[0.78em] font-bold tracking-wide', claro ? 'text-white/80' : 'text-azul']}>autoescuelas</span>
+  </span>
+</span>

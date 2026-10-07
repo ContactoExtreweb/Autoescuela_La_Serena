@@ -1,0 +1,57 @@
+---
+import { Image } from 'astro:assets'
+import Base from '../layouts/Base.astro'
+import Cabeza from '../components/Cabeza.astro'
+import Icono from '../components/Icono.astro'
+import { CENTROS, EMPRESA, tel, mapa } from '../lib/empresa.js'
+import { foto } from '../lib/fotos.js'
+---
+
+<Base
+  titulo="Centros en Villanueva de la Serena, Don Benito y Navalvillar de Pela"
+  descripcion="Direcciones y teléfonos de La Serena Autoescuelas: C/ San Francisco 30 (Villanueva de la Serena), Avda. de la Constitución 35 (Don Benito) y C/ Cantarranas 97 (Navalvillar de Pela)."
+>
+  <Cabeza
+    rotulo="Centros"
+    titulo="Tres centros. Elige el que te pille mejor."
+    texto="Llama o pásate por el más cercano: te atendemos en cualquiera de los tres."
+    migas={[{ href: '/centros/', texto: 'Centros' }]}
+  />
+
+  {
+    CENTROS.map((c, i) => (
+      <section id={c.id} class:list={['py-14 sm:py-20', i % 2 === 1 && 'bg-papel-2']}>
+        <div class="contenedor grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
+          <div class:list={['grid aspect-[16/10] grid-cols-[2fr_1fr] grid-rows-2 gap-3', i % 2 === 1 && 'lg:order-2']} data-aparece>
+            <Image src={foto(c.foto)} alt={`Centro de ${c.ciudad}`} widths={[640, 1000]} sizes="(min-width: 1024px) 50vw, 100vw" class="row-span-2 size-full rounded-3xl object-cover object-[50%_25%]" />
+            {c.galeria.map((g) => (
+              <Image src={foto(g)} alt={`Instalaciones de ${c.ciudad}`} widths={[320, 480]} sizes="(min-width: 1024px) 17vw, 33vw" class="size-full min-h-0 rounded-2xl object-cover" />
+            ))}
+          </div>
+          <div data-aparece style="--retraso:90ms">
+            <p class="rotulo mb-4">Centro {i + 1} de 3</p>
+            <h2 class="text-4xl font-black sm:text-6xl">{c.ciudad}</h2>
+            <p class="mt-5 flex items-start gap-3 text-xl">
+              <Icono nombre="map-pin" class="mt-1 size-6 shrink-0 text-azul" />
+              <span>{c.direccion}<br /><span class="text-gris">{c.cp} {c.ciudad} (Badajoz)</span></span>
+            </p>
+            <div class="mt-8 flex flex-wrap gap-3">
+              <a href={tel(c.telefono)} class="boton boton-azul"><Icono nombre="phone" class="size-4.5" />Llamar al {c.telefono}</a>
+              <a href={mapa(c)} target="_blank" rel="noopener" class="boton boton-borde text-azul">Cómo llegar <Icono nombre="arrow-up-right" class="size-4.5" /></a>
+            </div>
+          </div>
+        </div>
+      </section>
+    ))
+  }
+
+  <section class="bg-asfalto py-14 text-white">
+    <div class="contenedor flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <p class="text-2xl font-black">¿Prefieres escribirnos?</p>
+      <div class="flex flex-wrap gap-3">
+        <a href={`mailto:${EMPRESA.email}`} class="boton boton-borde text-white"><Icono nombre="mail" class="size-4.5" />{EMPRESA.email}</a>
+        <a href="/contacto/" class="boton boton-amarillo">Formulario</a>
+      </div>
+    </div>
+  </section>
+</Base>

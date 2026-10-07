@@ -1,0 +1,156 @@
+---
+import Logo from './Logo.astro'
+import Icono from './Icono.astro'
+import { CENTROS, ENLACES, tel } from '../lib/empresa.js'
+
+const MENU = [
+  { href: '/permisos/', texto: 'Permisos' },
+  { href: '/cursos/', texto: 'Cursos' },
+  { href: '/autoescuela/', texto: 'La autoescuela' },
+  { href: '/centros/', texto: 'Centros' },
+]
+const ruta = Astro.url.pathname
+---
+
+<header
+  class="sticky top-0 z-40 h-(--alto-cabecera) border-b border-filete bg-papel/85 backdrop-blur-md supports-[not(backdrop-filter:blur(1px))]:bg-papel"
+>
+  <div class="contenedor flex h-full items-center gap-4">
+    <a href="/" class="mr-auto text-[15px]" aria-label="La Serena Autoescuelas, inicio"><Logo /></a>
+
+    <nav class="hidden items-center gap-1 lg:flex" aria-label="Principal">
+      {
+        MENU.map((m) => (
+          <a
+            href={m.href}
+            aria-current={ruta.startsWith(m.href) ? 'page' : undefined}
+            class="rounded-full px-3.5 py-2 text-[15px] font-semibold text-gris transition-colors hover:text-tinta aria-[current=page]:bg-senal/10 aria-[current=page]:text-azul"
+          >
+            {m.texto}
+          </a>
+        ))
+      }
+    </nav>
+
+    <a
+      href={ENLACES.test}
+      target="_blank"
+      rel="noopener"
+      class="hidden items-center gap-1.5 text-[15px] font-semibold text-gris hover:text-tinta sm:inline-flex"
+    >
+      <Icono nombre="clipboard-check" class="size-4.5" /> Test online
+    </a>
+
+    <button
+      type="button"
+      data-cambia-tema
+      class="grid size-10 place-items-center rounded-full text-gris hover:bg-filete hover:text-tinta"
+      aria-label="Cambiar entre tema claro y oscuro"
+    >
+      <Icono nombre="moon" class="size-5 oscuro:hidden" />
+      <Icono nombre="sun" class="hidden size-5 oscuro:block" />
+    </button>
+
+    <a href="/contacto/" class="boton boton-azul hidden !min-h-10 !px-5 text-[15px] lg:inline-flex">Pide información</a>
+
+    <button
+      type="button"
+      popovertarget="menu-movil"
+      class="grid size-11 place-items-center rounded-full bg-filete lg:hidden"
+      aria-label="Abrir menú"
+    >
+      <Icono nombre="menu" class="size-5" />
+    </button>
+  </div>
+</header>
+
+{/* Menú del móvil con el atributo popover: abre, cierra con Esc o tocando fuera, sin JavaScript propio */}
+<div
+  id="menu-movil"
+  popover
+  class="menu-movil m-0 h-dvh max-h-none w-full max-w-none overflow-y-auto bg-papel p-0 text-tinta"
+>
+  <div class="contenedor flex h-(--alto-cabecera) items-center justify-between">
+    <Logo class="text-[15px]" />
+    <button
+      type="button"
+      popovertarget="menu-movil"
+      popovertargetaction="hide"
+      class="grid size-11 place-items-center rounded-full bg-filete"
+      aria-label="Cerrar menú"
+    >
+      <Icono nombre="x" class="size-5" />
+    </button>
+  </div>
+  <div class="franja"></div>
+  <nav class="contenedor flex flex-col py-6" aria-label="Menú">
+    {
+      [...MENU, { href: '/contacto/', texto: 'Contacto' }].map((m) => (
+        <a
+          href={m.href}
+          class="flex items-center justify-between border-b border-filete py-4 text-3xl font-extrabold tracking-tight"
+        >
+          {m.texto} <Icono nombre="arrow-right" class="size-6 text-azul" />
+        </a>
+      ))
+    }
+  </nav>
+  <div class="contenedor grid gap-3 pb-10">
+    <p class="rotulo">Para alumnos</p>
+    <div class="grid grid-cols-2 gap-3">
+      <a href={ENLACES.test} target="_blank" rel="noopener" class="senal p-4 font-bold">
+        <Icono nombre="clipboard-check" class="mb-2 size-6" />Test online
+      </a>
+      <a href={ENLACES.notas} target="_blank" rel="noopener" class="senal p-4 font-bold">
+        <Icono nombre="search-check" class="mb-2 size-6" />Nota del examen
+      </a>
+    </div>
+    <p class="rotulo mt-4">Llámanos</p>
+    {
+      CENTROS.map((c) => (
+        <a href={tel(c.telefono)} class="flex items-center justify-between rounded-xl bg-papel-2 px-4 py-3">
+          <span class="font-semibold">{c.ciudad}</span>
+          <span class="inline-flex items-center gap-2 font-bold text-azul">
+            <Icono nombre="phone" class="size-4" />
+            {c.telefono}
+          </span>
+        </a>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .menu-movil {
+    transition:
+      opacity 0.25s,
+      translate 0.35s var(--ease-salida),
+      display 0.35s allow-discrete,
+      overlay 0.35s allow-discrete;
+    opacity: 0;
+    translate: 0 -12px;
+  }
+  .menu-movil:popover-open {
+    opacity: 1;
+    translate: 0 0;
+  }
+  @starting-style {
+    .menu-movil:popover-open {
+      opacity: 0;
+      translate: 0 -12px;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll('[data-cambia-tema]').forEach((b) =>
+    b.addEventListener('click', () => {
+      const raiz = document.documentElement
+      const tema = raiz.dataset.tema === 'oscuro' ? 'claro' : 'oscuro'
+      raiz.dataset.tema = tema
+      try {
+        localStorage.setItem('tema', tema)
+      } catch {}
+    }),
+  )
+</script>

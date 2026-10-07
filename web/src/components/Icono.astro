@@ -1,0 +1,21 @@
+---
+import { ICONOS } from '../lib/iconos.js'
+
+interface Props {
+  nombre: keyof typeof ICONOS
+  class?: string
+}
+const { nombre, class: clase = 'size-5' } = Astro.props
+---
+
+<svg
+  class={clase}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  set:html={ICONOS[nombre]}
+/>

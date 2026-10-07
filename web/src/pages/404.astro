@@ -1,0 +1,13 @@
+---
+import Base from '../layouts/Base.astro'
+import Cabeza from '../components/Cabeza.astro'
+---
+
+<Base titulo="Página no encontrada" descripcion="Esta página no existe.">
+  <Cabeza rotulo="Error 404" titulo="Te has salido de la carretera." texto="Esta página no existe o ha cambiado de sitio.">
+    <div class="mt-8 flex flex-wrap gap-3">
+      <a href="/" class="boton boton-amarillo">Volver al inicio</a>
+      <a href="/permisos/" class="boton boton-borde text-white">Ver permisos</a>
+    </div>
+  </Cabeza>
+</Base>

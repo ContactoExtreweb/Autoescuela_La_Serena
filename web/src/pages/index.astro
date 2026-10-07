@@ -19,46 +19,44 @@ const PROFESIONALES = ['C1', 'C', 'C+E', 'D1', 'D', 'D+E']
 >
   {/* PORTADA */}
   {/* Móvil y tableta: la foto arriba a todo el ancho y el texto debajo, sin pisarse.
-      Escritorio: texto a la izquierda y la foto enmarcada a la derecha (a pantalla completa la foto, de 1162 px,
-      se veía borrosa). Los tres centros van en una señal de orientación a caballo sobre la foto. */}
-  <section class="relative overflow-hidden bg-asfalto text-white">
-    <div class="contenedor pb-10 lg:grid lg:min-h-[min(calc(100svh-var(--alto-cabecera)-3.5rem),48rem)] lg:grid-cols-[1fr_1.15fr] lg:items-center lg:gap-14 lg:py-16">
-      <div class="relative -mx-4 aspect-[16/10] sm:-mx-8 lg:order-2 lg:mx-0 lg:aspect-[4/3]">
-        <div class="size-full overflow-hidden lg:rounded-3xl">
-          <Image
-            src={foto("trailer")}
-            alt="Camión con semirremolque de La Serena Autoescuelas en la pista de prácticas"
-            widths={[640, 960, 1162]}
-            sizes="(min-width: 1024px) 55vw, 100vw"
-            loading="eager"
-            fetchpriority="high"
-            class="portada-foto size-full scale-[1.35] object-cover object-[60%_58%] origin-[64%_52%] lg:scale-[1.15] lg:object-[62%_55%] lg:origin-[62%_45%]"
-          />
-        </div>
-        <div class="absolute inset-0 bg-linear-to-t from-asfalto to-transparent to-35% lg:hidden"></div>
-
-        <div class="senal portada-in absolute bottom-0 left-4 translate-y-1/2 px-4 py-3.5 shadow-2xl shadow-black/40 sm:left-8 lg:-bottom-6 lg:-left-8 lg:translate-y-0 lg:px-6 lg:py-5" style="--r:320ms">
-          <p class="text-[10px] font-extrabold tracking-[0.18em] text-white/70 uppercase lg:text-xs">Nuestros centros</p>
-          <ul class="mt-1 text-[15px] leading-snug font-extrabold lg:text-lg">
-            <li>Villanueva de la Serena</li>
-            <li>Don Benito</li>
-            <li>Navalvillar de Pela</li>
-          </ul>
-        </div>
+      Escritorio: la foto a pantalla completa con el texto encima, sin degradado: solo un velo oscuro uniforme
+      para que se lea. Los tres centros van en una señal de orientación (abajo a la derecha en escritorio). */}
+  <section class="relative isolate overflow-hidden bg-asfalto text-white lg:flex lg:min-h-[calc(100svh-var(--alto-cabecera)-3.5rem)] lg:items-end">
+    <div class="relative aspect-[16/10] lg:absolute lg:inset-0 lg:-z-10 lg:aspect-auto">
+      <div class="size-full overflow-hidden">
+        <Image
+          src={foto("trailer")}
+          alt="Camión con semirremolque de La Serena Autoescuelas en la pista de prácticas"
+          widths={[640, 960, 1162]}
+          sizes="100vw"
+          loading="eager"
+          fetchpriority="high"
+          class="portada-foto size-full scale-[1.35] object-cover object-[60%_58%] origin-[64%_52%] lg:scale-100 lg:object-[62%_60%]"
+        />
       </div>
+      <div class="absolute inset-0 bg-linear-to-t from-asfalto to-transparent to-35% lg:bg-none lg:bg-asfalto/50"></div>
 
-      <div class="pt-16 lg:pt-0">
-        <p class="rotulo portada-in !text-celeste mb-3 lg:mb-5">Autoescuela desde los años 70</p>
-        <h1 class="portada-in max-w-2xl text-[clamp(2.9rem,11.5vw,5.5rem)] font-black leading-[0.92] lg:text-[clamp(3.5rem,6vw,5.75rem)]" style="--r:80ms">
-          Del ciclomotor <span class="text-celeste">al tráiler.</span>
-        </h1>
-        <p class="portada-in mt-4 max-w-xl text-[17px] text-white/80 lg:mt-6 lg:text-xl" style="--r:160ms">
-          Todos los permisos de conducir y la formación para trabajar al volante<span class="hidden lg:inline">, en tres centros de La Serena y las Vegas Altas</span>.
-        </p>
-        <div class="portada-in mt-7 grid grid-cols-[1fr_auto] gap-2.5 sm:flex lg:mt-8 lg:gap-3" style="--r:240ms">
-          <a href="#buscador" class="boton boton-azul !px-3 text-[15px] sm:!px-6 sm:text-base">Encuentra tu carnet <Icono nombre="arrow-right" class="size-4.5" /></a>
-          <a href="/contacto/" class="boton boton-borde !px-5 text-[15px] text-white sm:!px-6 sm:text-base"><span class="sm:hidden">Contacto</span><span class="hidden sm:inline">Pide información</span></a>
-        </div>
+      <div class="senal portada-in absolute bottom-0 left-4 translate-y-1/2 px-4 py-3.5 shadow-2xl shadow-black/40 sm:left-8 lg:right-[max(2rem,calc((100vw-78rem)/2+2rem))] lg:bottom-24 lg:left-auto lg:translate-y-0 lg:px-6 lg:py-5" style="--r:320ms">
+        <p class="text-[10px] font-extrabold tracking-[0.18em] text-white/70 uppercase lg:text-xs">Nuestros centros</p>
+        <ul class="mt-1 text-[15px] leading-snug font-extrabold lg:text-lg">
+          <li>Villanueva de la Serena</li>
+          <li>Don Benito</li>
+          <li>Navalvillar de Pela</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="contenedor pt-16 pb-10 lg:pt-28 lg:pb-20">
+      <p class="rotulo portada-in !text-celeste mb-3 lg:mb-5 lg:[text-shadow:0_1px_12px_rgb(0_0_0/0.6)]">Autoescuela desde los años 70</p>
+      <h1 class="portada-in max-w-2xl text-[clamp(2.9rem,11.5vw,6.25rem)] font-black leading-[0.92] lg:[text-shadow:0_2px_24px_rgb(0_0_0/0.35)]" style="--r:80ms">
+        Del ciclomotor <span class="text-celeste">al tráiler.</span>
+      </h1>
+      <p class="portada-in mt-4 max-w-xl text-[17px] text-white/85 lg:mt-6 lg:text-xl" style="--r:160ms">
+        Todos los permisos de conducir y la formación para trabajar al volante<span class="hidden lg:inline">, en tres centros de La Serena y las Vegas Altas</span>.
+      </p>
+      <div class="portada-in mt-7 grid grid-cols-[1fr_auto] gap-2.5 sm:flex lg:mt-8 lg:gap-3" style="--r:240ms">
+        <a href="#buscador" class="boton boton-azul !px-3 text-[15px] sm:!px-6 sm:text-base">Encuentra tu carnet <Icono nombre="arrow-right" class="size-4.5" /></a>
+        <a href="/contacto/" class="boton boton-borde !px-5 text-[15px] text-white sm:!px-6 sm:text-base"><span class="sm:hidden">Contacto</span><span class="hidden sm:inline">Pide información</span></a>
       </div>
     </div>
   </section>

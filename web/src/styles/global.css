@@ -20,6 +20,8 @@
   --color-senal-2: #003b7a;
   --color-asfalto: #12161d;
   --color-amarillo: #ffc629;
+  /* El azul de marca aclarado, para texto sobre el asfalto (el de marca no se lee sobre oscuro) */
+  --color-celeste: #5ea8ff;
 
   --font-sans: "Overpass Variable", ui-sans-serif, system-ui, sans-serif;
 

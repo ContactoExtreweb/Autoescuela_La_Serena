@@ -1,7 +1,7 @@
 ---
 // Columna de contacto de las fichas: fija al bajar en escritorio, al final en el móvil
 import Icono from './Icono.astro'
-import { CENTROS, tel } from '../lib/empresa.js'
+import { CENTRO, tel } from '../lib/empresa.js'
 
 interface Props {
   /** Lo que se escribe solo en el formulario de contacto */
@@ -17,20 +17,12 @@ const { interes } = Astro.props
     <a href={`/contacto/?interes=${encodeURIComponent(interes)}`} class="boton boton-amarillo mt-6 w-full">
       Pide información <Icono nombre="arrow-right" class="size-4.5" />
     </a>
-    <ul class="mt-6 space-y-1 border-t border-white/20 pt-5">
-      {
-        CENTROS.map((c) => (
-          <li>
-            <a href={tel(c.telefono)} class="flex items-center justify-between gap-3 rounded-lg py-1.5 hover:underline">
-              <span class="text-white/80">{c.ciudad}</span>
-              <span class="inline-flex items-center gap-1.5 font-bold whitespace-nowrap">
-                <Icono nombre="phone" class="size-4 text-amarillo" />
-                {c.telefono}
-              </span>
-            </a>
-          </li>
-        ))
-      }
-    </ul>
+    <a href={tel()} class="mt-6 flex items-center justify-between gap-3 border-t border-white/20 pt-5 hover:underline">
+      <span class="text-white/80">o llámanos</span>
+      <span class="inline-flex items-center gap-1.5 text-xl font-black whitespace-nowrap">
+        <Icono nombre="phone" class="size-4 text-amarillo" />
+        {CENTRO.telefono}
+      </span>
+    </a>
   </div>
 </aside>

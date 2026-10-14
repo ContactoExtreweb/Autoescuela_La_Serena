@@ -1,7 +1,7 @@
 ---
 import Logo from './Logo.astro'
 import Icono from './Icono.astro'
-import { CENTROS, EMPRESA, ENLACES, tel, mapa } from '../lib/empresa.js'
+import { CENTRO, EMPRESA, ENLACES, MAPA, tel } from '../lib/empresa.js'
 import { GRUPOS } from '../lib/permisos.js'
 import { CURSOS } from '../lib/cursos.js'
 ---
@@ -42,20 +42,10 @@ import { CURSOS } from '../lib/cursos.js'
     </div>
   </div>
 
-  <div class="contenedor grid gap-6 border-t border-white/10 py-10 sm:grid-cols-3">
-    {
-      CENTROS.map((c) => (
-        <div>
-          <p class="font-bold text-white">{c.ciudad}</p>
-          <a href={mapa(c)} target="_blank" rel="noopener" class="block hover:text-white">
-            {c.direccion}, {c.cp}
-          </a>
-          <a href={tel(c.telefono)} class="font-semibold text-amarillo">
-            {c.telefono}
-          </a>
-        </div>
-      ))
-    }
+  <div class="contenedor flex flex-col gap-2 border-t border-white/10 py-10 sm:flex-row sm:items-center sm:gap-8">
+    <p class="font-bold text-white">{CENTRO.ciudad}</p>
+    <a href={MAPA} target="_blank" rel="noopener" class="hover:text-white">{CENTRO.direccion}, {CENTRO.cp}</a>
+    <a href={tel()} class="font-semibold text-amarillo">{CENTRO.telefono}</a>
   </div>
 
   <div class="contenedor flex flex-col gap-3 border-t border-white/10 py-6 text-sm sm:flex-row sm:items-center">

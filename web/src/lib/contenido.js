@@ -45,6 +45,12 @@ async function leer(tabla, consulta) {
 export const novedades = () =>
   leer('novedades', 'select=*&order=fecha.asc.nullslast,created_at.desc&limit=12')
 
+/** Una novedad publicada por su id, o null si no existe, está oculta o ha caducado (el RLS no la deja ver). */
+export async function novedad(id) {
+  if (!/^[0-9a-f-]{36}$/i.test(id ?? '')) return null
+  return (await leer('novedades', `select=*&id=eq.${id}`))[0] ?? null
+}
+
 export const fotos = () => leer('fotos', 'select=*&order=created_at.desc&limit=500')
 
 /** Vehículos publicados; con `permiso`, solo los de esa clase (slug de permisos.js). */
@@ -54,6 +60,10 @@ export const vehiculos = (permiso) =>
 /** URL pública de una imagen del bucket, o de su miniatura (la misma ruta acabada en `_m.jpg`). */
 export const urlImagen = (ruta) => `${API}/storage/v1/object/public/web/${ruta}`
 export const urlMiniatura = (ruta) => urlImagen(ruta.replace(/\.jpg$/, '_m.jpg'))
+
+/** «2026-10-20» → «martes 20 de octubre» */
+export const fechaConDia = (iso) =>
+  new Date(`${iso}T12:00:00`).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })
 
 /** «2026-10-20» → «20 de octubre» */
 export const fechaLarga = (iso) =>

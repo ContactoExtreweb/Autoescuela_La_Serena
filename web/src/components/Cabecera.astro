@@ -1,14 +1,14 @@
 ---
 import Logo from './Logo.astro'
 import Icono from './Icono.astro'
-import { CENTROS, ENLACES, tel } from '../lib/empresa.js'
+import { CENTRO, ENLACES, tel } from '../lib/empresa.js'
 
 const MENU = [
   { href: '/permisos/', texto: 'Permisos' },
   { href: '/cursos/', texto: 'Cursos' },
   { href: '/autoescuela/', texto: 'La autoescuela' },
   { href: '/galeria/', texto: 'Galería' },
-  { href: '/centros/', texto: 'Centros' },
+  { href: '/donde-estamos/', texto: 'Dónde estamos' },
 ]
 const ruta = Astro.url.pathname
 ---
@@ -107,17 +107,13 @@ const ruta = Astro.url.pathname
       </a>
     </div>
     <p class="rotulo mt-4">Llámanos</p>
-    {
-      CENTROS.map((c) => (
-        <a href={tel(c.telefono)} class="flex items-center justify-between rounded-xl bg-papel-2 px-4 py-3">
-          <span class="font-semibold">{c.ciudad}</span>
-          <span class="inline-flex items-center gap-2 font-bold text-azul">
-            <Icono nombre="phone" class="size-4" />
-            {c.telefono}
-          </span>
-        </a>
-      ))
-    }
+    <a href={tel()} class="flex items-center justify-between rounded-xl bg-papel-2 px-4 py-3">
+      <span class="font-semibold">{CENTRO.ciudad}</span>
+      <span class="inline-flex items-center gap-2 font-bold text-azul">
+        <Icono nombre="phone" class="size-4" />
+        {CENTRO.telefono}
+      </span>
+    </a>
   </div>
 </div>
 

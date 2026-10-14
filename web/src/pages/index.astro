@@ -6,11 +6,11 @@ import Buscador from '../components/Buscador.astro'
 import Carretera from '../components/Carretera.astro'
 import Sellos from '../components/Sellos.astro'
 import Llamar from '../components/Llamar.astro'
-import { CENTROS, ENLACES, tel, mapa } from '../lib/empresa.js'
+import { CENTRO, ENLACES, MAPA, tel } from '../lib/empresa.js'
 import { CURSOS } from '../lib/cursos.js'
 import { foto } from '../lib/fotos.js'
 import Novedades from '../components/Novedades.astro'
-import Visor from '../components/Visor.astro'
+import Ubicacion from '../components/Ubicacion.astro'
 import { novedades, CACHE } from '../lib/contenido.js'
 
 // Bajo demanda: las novedades que suben desde /admin salen sin volver a desplegar
@@ -22,13 +22,13 @@ const PROFESIONALES = ['C1', 'C', 'C+E', 'D1', 'D', 'D+E']
 ---
 
 <Base
-  titulo="La Serena Autoescuelas · Autoescuela en Villanueva de la Serena, Don Benito y Navalvillar de Pela"
-  descripcion="Todos los permisos de conducir, del ciclomotor al tráiler, CAP y cursos profesionales. Autoescuela en Villanueva de la Serena, Don Benito y Navalvillar de Pela desde los años 70."
+  titulo="La Serena Autoescuelas · Autoescuela en Villanueva de la Serena"
+  descripcion="Todos los permisos de conducir, del ciclomotor al tráiler, CAP y cursos profesionales. Autoescuela en Villanueva de la Serena desde los años 70."
 >
   {/* PORTADA */}
   {/* Móvil y tableta: la foto arriba a todo el ancho y el texto debajo, sin pisarse.
       Escritorio: la foto a pantalla completa con el texto encima, sin degradado: solo un velo oscuro uniforme
-      para que se lea. Los tres centros van en una señal de orientación (abajo a la derecha en escritorio). */}
+      para que se lea. La dirección va en una señal de orientación (abajo a la derecha en escritorio). */}
   <section class="relative isolate overflow-hidden bg-asfalto text-white lg:flex lg:min-h-[calc(100svh-var(--alto-cabecera)-3.5rem)] lg:items-end">
     <div class="relative aspect-[16/10] lg:absolute lg:inset-0 lg:-z-10 lg:aspect-auto">
       <div class="size-full overflow-hidden">
@@ -44,14 +44,13 @@ const PROFESIONALES = ['C1', 'C', 'C+E', 'D1', 'D', 'D+E']
       </div>
       <div class="absolute inset-0 bg-linear-to-t from-asfalto to-transparent to-35% lg:bg-none lg:bg-asfalto/50"></div>
 
-      <div class="senal portada-in absolute bottom-0 left-4 translate-y-1/2 px-4 py-3.5 shadow-2xl shadow-black/40 sm:left-8 lg:right-[max(2rem,calc((100vw-78rem)/2+2rem))] lg:bottom-24 lg:left-auto lg:translate-y-0 lg:px-6 lg:py-5" style="--r:320ms">
-        <p class="text-[10px] font-extrabold tracking-[0.18em] text-white/70 uppercase lg:text-xs">Nuestros centros</p>
-        <ul class="mt-1 text-[15px] leading-snug font-extrabold lg:text-lg">
-          <li>Villanueva de la Serena</li>
-          <li>Don Benito</li>
-          <li>Navalvillar de Pela</li>
-        </ul>
-      </div>
+      <a href={MAPA} target="_blank" rel="noopener" class="senal portada-in absolute bottom-0 left-4 translate-y-1/2 px-4 py-3.5 shadow-2xl shadow-black/40 sm:left-8 lg:right-[max(2rem,calc((100vw-78rem)/2+2rem))] lg:bottom-24 lg:left-auto lg:translate-y-0 lg:px-6 lg:py-5" style="--r:320ms">
+        <p class="text-[10px] font-extrabold tracking-[0.18em] text-white/70 uppercase lg:text-xs">Encuéntranos</p>
+        <p class="mt-1 text-[15px] leading-snug font-extrabold lg:text-lg">{CENTRO.ciudad}</p>
+        <p class="flex items-center gap-1.5 text-[15px] leading-snug text-white/85 lg:text-lg">
+          <Icono nombre="map-pin" class="size-4 text-amarillo" />{CENTRO.direccion}
+        </p>
+      </a>
     </div>
 
     <div class="contenedor pt-16 pb-10 lg:pt-28 lg:pb-20">
@@ -60,7 +59,7 @@ const PROFESIONALES = ['C1', 'C', 'C+E', 'D1', 'D', 'D+E']
         Del ciclomotor <span class="text-celeste">al tráiler.</span>
       </h1>
       <p class="portada-in mt-4 max-w-xl text-[17px] text-white/85 lg:mt-6 lg:text-xl" style="--r:160ms">
-        Todos los permisos de conducir y la formación para trabajar al volante<span class="hidden lg:inline">, en tres centros de La Serena y las Vegas Altas</span>.
+        Todos los permisos de conducir y la formación para trabajar al volante<span class="hidden lg:inline">, en Villanueva de la Serena</span>.
       </p>
       <div class="portada-in mt-7 grid grid-cols-[1fr_auto] gap-2.5 sm:flex lg:mt-8 lg:gap-3" style="--r:240ms">
         <a href="#buscador" class="boton boton-azul !px-3 text-[15px] sm:!px-6 sm:text-base">Encuentra tu carnet <Icono nombre="arrow-right" class="size-4.5" /></a>
@@ -220,7 +219,7 @@ const PROFESIONALES = ['C1', 'C', 'C+E', 'D1', 'D', 'D+E']
           <li class="relative" data-aparece style="--retraso:80ms">
             <span class="absolute top-1 -left-[2.75rem] size-5 rounded-full border-4 border-papel bg-senal"></span>
             <p class="text-sm font-extrabold tracking-widest text-azul uppercase">Años 90</p>
-            <p class="mt-1 text-lg">Su hijo, Benito Benítez Nieto, toma el relevo y la convierte en un grupo con tres centros.</p>
+            <p class="mt-1 text-lg">Su hijo, Benito Benítez Nieto, toma el relevo y la convierte en una referencia en la comarca.</p>
           </li>
           <li class="relative" data-aparece style="--retraso:160ms">
             <span class="absolute top-1 -left-[2.75rem] size-5 rounded-full border-4 border-papel bg-amarillo"></span>
@@ -233,39 +232,16 @@ const PROFESIONALES = ['C1', 'C', 'C+E', 'D1', 'D', 'D+E']
     </div>
   </section>
 
-  {/* CENTROS */}
-  <section class="bg-papel-2 py-20 sm:py-28" id="centros">
+  {/* DÓNDE ESTAMOS */}
+  <section class="bg-papel-2 py-20 sm:py-28" id="donde-estamos">
     <div class="contenedor">
-      <p class="rotulo mb-5">Tres centros</p>
-      <h2 class="max-w-3xl text-4xl font-black sm:text-6xl">Siempre tienes uno cerca.</h2>
-      <div class="mt-12 grid gap-6 md:grid-cols-3">
-        {
-          CENTROS.map((c, i) => (
-            <article class="overflow-hidden rounded-3xl border border-filete bg-papel" data-aparece style={`--retraso:${i * 80}ms`}>
-              <Image src={foto(c.foto)} alt={`Centro de ${c.ciudad}`} widths={[480, 800]} sizes="(min-width: 768px) 33vw, 100vw" class="aspect-[16/10] w-full object-cover" />
-              <div class="p-6">
-                <h3 class="text-2xl font-extrabold">{c.ciudad}</h3>
-                <a href={mapa(c)} target="_blank" rel="noopener" class="mt-2 flex items-start gap-2 text-gris hover:text-tinta">
-                  <Icono nombre="map-pin" class="mt-1 size-4 shrink-0" />
-                  {c.direccion}, {c.cp}
-                </a>
-                <div class="mt-5 flex gap-2">
-                  <a href={tel(c.telefono)} class="boton boton-azul !min-h-11 flex-1 !px-3 text-[15px]">
-                    <Icono nombre="phone" class="size-4" />{c.telefono}
-                  </a>
-                  <a href={mapa(c)} target="_blank" rel="noopener" class="boton boton-borde !min-h-11 !px-4 text-[15px] text-azul">Cómo llegar</a>
-                </div>
-              </div>
-            </article>
-          ))
-        }
-      </div>
+      <p class="rotulo mb-8">Dónde estamos</p>
+      <Ubicacion />
     </div>
   </section>
 
   <Sellos />
   <Llamar />
-  <Visor />
 </Base>
 
 <style>

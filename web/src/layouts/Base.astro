@@ -1,38 +1,36 @@
 ---
 import Cabecera from '../components/Cabecera.astro'
 import Pie from '../components/Pie.astro'
-import { CENTROS, EMPRESA } from '../lib/empresa.js'
+import { CENTRO, EMPRESA } from '../lib/empresa.js'
 import '../styles/global.css'
 
 interface Props {
   titulo: string
   descripcion: string
+  /** Imagen al compartir la página (URL absoluta): el cartel de una novedad en WhatsApp o Facebook */
+  imagen?: string
 }
-const { titulo, descripcion } = Astro.props
+const { titulo, descripcion, imagen } = Astro.props
 const tituloCompleto = titulo.includes('La Serena') ? titulo : `${titulo} · La Serena Autoescuelas`
 const canonica = new URL(Astro.url.pathname, Astro.site).href
 
-// Autoescuela con sus tres centros: así Google une la web con las tres fichas de Maps
+// La autoescuela con su dirección: así Google une la web con la ficha de Maps
 const datos = {
   '@context': 'https://schema.org',
   '@type': 'DrivingSchool',
   name: EMPRESA.nombre,
   url: EMPRESA.dominio,
   email: EMPRESA.email,
+  telephone: `+34 ${CENTRO.telefono}`,
   sameAs: [EMPRESA.facebook],
-  department: CENTROS.map((c) => ({
-    '@type': 'DrivingSchool',
-    name: `${EMPRESA.nombre} ${c.ciudad}`,
-    telephone: `+34 ${c.telefono}`,
-    address: {
-      '@type': 'PostalAddress',
-      streetAddress: c.direccion,
-      postalCode: c.cp,
-      addressLocality: c.ciudad,
-      addressRegion: 'Badajoz',
-      addressCountry: 'ES',
-    },
-  })),
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: CENTRO.direccion,
+    postalCode: CENTRO.cp,
+    addressLocality: CENTRO.ciudad,
+    addressRegion: 'Badajoz',
+    addressCountry: 'ES',
+  },
 }
 ---
 
@@ -48,6 +46,8 @@ const datos = {
     <meta property="og:description" content={descripcion} />
     <meta property="og:url" content={canonica} />
     <meta property="og:locale" content="es_ES" />
+    {imagen && <meta property="og:image" content={imagen} />}
+    {imagen && <meta name="twitter:card" content="summary_large_image" />}
     <meta name="theme-color" content="#0050a2" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 

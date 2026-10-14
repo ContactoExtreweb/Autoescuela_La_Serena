@@ -10,7 +10,7 @@ export const CURSOS = [
     resumen: 'Obligatorio para trabajar conduciendo camiones o autobuses en toda la Unión Europea.',
     texto: [
       'El CAP acredita que un conductor profesional ha superado la formación y los exámenes que exige la Unión Europea.',
-      'Estamos autorizados para impartir la cualificación inicial y la formación continua, de mercancías y de viajeros, en nuestros centros de Villanueva de la Serena y Don Benito.',
+      'Estamos autorizados para impartir la cualificación inicial y la formación continua, de mercancías y de viajeros, en nuestro centro de Villanueva de la Serena.',
     ],
     datos: [
       ['Cualificación inicial', '140 horas'],

@@ -15,36 +15,18 @@ export const ENLACES = {
   notas: 'https://sedeapl.dgt.gob.es/notasexamen/',
 }
 
-export const CENTROS = [
-  {
-    id: 'villanueva',
-    ciudad: 'Villanueva de la Serena',
-    direccion: 'C/ San Francisco, 30',
-    cp: '06700',
-    telefono: '924 84 36 82',
-    foto: 'villanueva-1',
-    galeria: ['villanueva-2', 'villanueva-3'],
-  },
-  {
-    id: 'don-benito',
-    ciudad: 'Don Benito',
-    direccion: 'Avda. de la Constitución, 35',
-    cp: '06400',
-    telefono: '924 81 33 80',
-    foto: 'donbenito-1',
-    galeria: ['donbenito-2', 'donbenito-3'],
-  },
-  {
-    id: 'navalvillar',
-    ciudad: 'Navalvillar de Pela',
-    direccion: 'C/ Cantarranas, 97',
-    cp: '06760',
-    telefono: '924 86 05 49',
-    foto: 'navalvillar-1',
-    galeria: ['navalvillar-2', 'navalvillar-3'],
-  },
-]
+// Un solo centro desde octubre de 2026: la autoescuela es independiente y los de Don Benito y Navalvillar de Pela
+// han cerrado (dicho por Saúl el 14/10). Sus fotos siguen en src/assets/fotos por si hicieran falta.
+export const CENTRO = {
+  ciudad: 'Villanueva de la Serena',
+  direccion: 'C/ San Francisco, 30',
+  cp: '06700',
+  telefono: '924 84 36 82',
+  foto: 'villanueva-1',
+  galeria: ['villanueva-2', 'villanueva-3'],
+}
 
-export const tel = (t) => `tel:+34${t.replace(/\s/g, '')}`
-export const mapa = (c) =>
-  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`La Serena Autoescuelas, ${c.direccion}, ${c.cp} ${c.ciudad}`)}`
+export const tel = (t = CENTRO.telefono) => `tel:+34${t.replace(/\s/g, '')}`
+export const MAPA = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+  `La Serena Autoescuelas, ${CENTRO.direccion}, ${CENTRO.cp} ${CENTRO.ciudad}`,
+)}`

@@ -2,16 +2,16 @@
 import Base from '../layouts/Base.astro'
 import Cabeza from '../components/Cabeza.astro'
 import Icono from '../components/Icono.astro'
-import { CENTROS, EMPRESA, tel } from '../lib/empresa.js'
+import { CENTRO, EMPRESA, MAPA, tel } from '../lib/empresa.js'
 import { PERMISOS } from '../lib/permisos.js'
 import { CURSOS } from '../lib/cursos.js'
 ---
 
-<Base titulo="Contacto" descripcion="Pide información sobre cualquier permiso o curso. Te llamamos desde el centro que prefieras: Villanueva de la Serena, Don Benito o Navalvillar de Pela.">
+<Base titulo="Contacto" descripcion="Pide información sobre cualquier permiso o curso. Te llamamos desde la autoescuela, en Villanueva de la Serena.">
   <Cabeza
     rotulo="Contacto"
     titulo="Cuéntanos qué quieres sacarte."
-    texto="Déjanos tu teléfono y te llamamos desde el centro que prefieras. O llámanos tú: estamos en los tres."
+    texto="Déjanos tu teléfono y te llamamos. O llámanos tú, o pásate por la autoescuela."
     migas={[{ href: '/contacto/', texto: 'Contacto' }]}
   />
 
@@ -53,13 +53,13 @@ import { CURSOS } from '../lib/cursos.js'
       </label>
 
       <fieldset>
-        <legend class="mb-3 font-bold">Centro que prefieres</legend>
-        <div class="grid gap-2 sm:grid-cols-3">
+        <legend class="mb-3 font-bold">¿Cuándo te llamamos?</legend>
+        <div class="grid grid-cols-3 gap-2">
           {
-            CENTROS.map((c, i) => (
+            ['Por la mañana', 'Por la tarde', 'Me da igual'].map((cuando, i) => (
               <label class="opcion">
-                <input type="radio" name="centro" value={c.ciudad} checked={i === 0} class="sr-only" />
-                <span>{c.ciudad}</span>
+                <input type="radio" name="cuando" value={cuando} checked={i === 2} class="sr-only" />
+                <span>{cuando}</span>
               </label>
             ))
           }
@@ -82,24 +82,23 @@ import { CURSOS } from '../lib/cursos.js'
           ¡Recibido! Te llamamos en cuanto podamos.
         </p>
         <p class="mt-4 hidden rounded-2xl bg-red-500/15 p-4 font-semibold" data-error role="alert">
-          No se ha podido enviar. Llámanos a cualquiera de los centros, por favor.
+          No se ha podido enviar. Llámanos al {CENTRO.telefono}, por favor.
         </p>
       </div>
     </form>
 
     <aside class="space-y-4">
-      {
-        CENTROS.map((c) => (
-          <a href={tel(c.telefono)} class="senal block p-6">
-            <span class="block text-white/80">{c.ciudad}</span>
-            <span class="mt-1 flex items-center gap-2 text-2xl font-black">
-              <Icono nombre="phone" class="size-5 text-amarillo" />
-              {c.telefono}
-            </span>
-            <span class="mt-1 block text-sm text-white/70">{c.direccion}</span>
-          </a>
-        ))
-      }
+      <a href={tel()} class="senal block p-6">
+        <span class="block text-white/80">Llámanos</span>
+        <span class="mt-1 flex items-center gap-2 text-3xl font-black">
+          <Icono nombre="phone" class="size-6 text-amarillo" />
+          {CENTRO.telefono}
+        </span>
+      </a>
+      <a href={MAPA} target="_blank" rel="noopener" class="flex items-start gap-3 rounded-2xl border border-filete p-5">
+        <Icono nombre="map-pin" class="mt-0.5 size-5 shrink-0 text-azul" />
+        <span><span class="font-semibold">{CENTRO.direccion}</span><span class="block text-gris">{CENTRO.cp} {CENTRO.ciudad}</span></span>
+      </a>
       <a href={`mailto:${EMPRESA.email}`} class="flex items-center gap-3 rounded-2xl border border-filete p-5 font-semibold break-all">
         <Icono nombre="mail" class="size-5 shrink-0 text-azul" />{EMPRESA.email}
       </a>

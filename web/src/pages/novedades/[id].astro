@@ -1,0 +1,135 @@
+---
+// Una novedad entera: el cartel grande, todo el texto y cómo apuntarse. Es una página (y no una ventana) para
+// poder compartirla por WhatsApp o Facebook con su cartel de vista previa, y para que Google la encuentre.
+import Base from '../../layouts/Base.astro'
+import Cabeza from '../../components/Cabeza.astro'
+import Icono from '../../components/Icono.astro'
+import Visor from '../../components/Visor.astro'
+import { CENTRO, tel } from '../../lib/empresa.js'
+import { CACHE, ETIQUETAS, fechaConDia, fechaLarga, novedad, novedades, urlImagen, urlMiniatura } from '../../lib/contenido.js'
+
+// Bajo demanda: sale en cuanto la publican; oculta o caducada, 404
+export const prerender = false
+const n = await novedad(Astro.params.id)
+if (!n) return new Response(null, { status: 404 })
+const otras = (await novedades()).filter((o) => o.id !== n.id).slice(0, 3)
+Astro.response.headers.set('Netlify-CDN-Cache-Control', CACHE)
+
+const resumen = (n.texto ?? '').replace(/\s+/g, ' ').slice(0, 150)
+const descripcion = [n.fecha && `Empieza el ${fechaLarga(n.fecha)}.`, resumen || `${ETIQUETAS[n.etiqueta]} en La Serena Autoescuelas, ${CENTRO.ciudad}.`]
+  .filter(Boolean)
+  .join(' ')
+---
+
+<Base titulo={n.titulo} descripcion={descripcion} imagen={n.imagen ? urlImagen(n.imagen) : undefined}>
+  <Cabeza
+    rotulo={ETIQUETAS[n.etiqueta]}
+    titulo={n.titulo}
+    migas={[
+      { href: '/#novedades', texto: 'Novedades' },
+      { href: Astro.url.pathname, texto: ETIQUETAS[n.etiqueta] },
+    ]}
+  >
+    <div class="mt-7 flex flex-wrap gap-2">
+      {
+        n.fecha && (
+          <span class="inline-flex items-center gap-2 rounded-full bg-senal px-4 py-2 font-bold">
+            Empieza el {fechaConDia(n.fecha)}
+          </span>
+        )
+      }
+      <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 font-bold">
+        <Icono nombre="map-pin" class="size-4 text-amarillo" />
+        {CENTRO.ciudad}
+      </span>
+    </div>
+  </Cabeza>
+
+  <div class="contenedor grid gap-12 py-12 sm:py-16 lg:grid-cols-[1fr_22rem] lg:gap-16">
+    <article class:list={['grid gap-10', n.imagen && n.texto && 'md:grid-cols-[minmax(0,26rem)_1fr] md:items-start']}>
+      {
+        n.imagen && (
+          <a href={urlImagen(n.imagen)} data-visor={n.titulo} class="group relative block overflow-hidden rounded-3xl border border-filete bg-papel-2">
+            <img src={urlImagen(n.imagen)} width={n.ancho} height={n.alto} alt={`Cartel: ${n.titulo}`} class="w-full" />
+            <span class="absolute right-3 bottom-3 rounded-full bg-asfalto/80 px-3 py-1.5 text-sm font-bold text-white">Ver en grande</span>
+          </a>
+        )
+      }
+      {n.texto && <div class="text-lg leading-relaxed whitespace-pre-line sm:text-xl">{n.texto}</div>}
+      {!n.texto && !n.imagen && <p class="text-lg text-gris">Llámanos y te contamos todos los detalles.</p>}
+    </article>
+
+    <aside class="lg:sticky lg:top-24 lg:self-start">
+      <div class="senal p-7">
+        <p class="text-2xl font-black">¿Te interesa?</p>
+        <p class="mt-2 text-white/80">Pregúntanos por plazas, horario y precio.</p>
+        <a href={`/contacto/?interes=${encodeURIComponent(n.titulo)}`} class="boton boton-amarillo mt-6 w-full">
+          Quiero información <Icono nombre="arrow-right" class="size-4.5" />
+        </a>
+        <a href={tel()} class="mt-6 flex items-center justify-between gap-3 border-t border-white/20 pt-5 hover:underline">
+          <span class="text-white/80">o llámanos</span>
+          <span class="inline-flex items-center gap-1.5 text-xl font-black whitespace-nowrap">
+            <Icono nombre="phone" class="size-4 text-amarillo" />
+            {CENTRO.telefono}
+          </span>
+        </a>
+      </div>
+      {/* Compartir: el menú del móvil si lo hay; si no, WhatsApp */}
+      <a
+        href={`https://wa.me/?text=${encodeURIComponent(`${n.titulo} · La Serena Autoescuelas ${new URL(Astro.url.pathname, Astro.site).href}`)}`}
+        target="_blank"
+        rel="noopener"
+        data-compartir={n.titulo}
+        class="boton boton-borde mt-4 w-full text-azul"
+      >
+        Compartir con alguien
+      </a>
+    </aside>
+  </div>
+
+  {
+    otras.length > 0 && (
+      <section class="border-t border-filete py-14 sm:py-20">
+        <div class="contenedor">
+          <h2 class="text-3xl font-black sm:text-4xl">Más novedades</h2>
+          <ul class="mt-8 grid gap-4 sm:grid-cols-3">
+            {otras.map((o) => (
+              <li>
+                <a href={`/novedades/${o.id}/`} class="group flex gap-4 rounded-2xl border border-filete bg-papel-2 p-3 transition hover:border-senal">
+                  {o.imagen ? (
+                    <img src={urlMiniatura(o.imagen)} alt="" loading="lazy" class="size-20 shrink-0 rounded-xl object-cover object-top" />
+                  ) : (
+                    <span class="grid size-20 shrink-0 place-items-center rounded-xl bg-senal text-white">
+                      <Icono nombre="route" class="size-8" />
+                    </span>
+                  )}
+                  <span class="min-w-0 self-center">
+                    <span class="block text-sm font-bold text-azul">
+                      {ETIQUETAS[o.etiqueta]}{o.fecha && `, ${fechaLarga(o.fecha)}`}
+                    </span>
+                    <span class="mt-0.5 line-clamp-2 block font-extrabold leading-snug">{o.titulo}</span>
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+
+  <Visor />
+</Base>
+
+<script>
+  // En el móvil, el menú de compartir del sistema (WhatsApp, Instagram, copiar enlace…). Sin él, el enlace de WhatsApp.
+  const boton = document.querySelector<HTMLAnchorElement>('[data-compartir]')
+  if (boton && navigator.share) {
+    boton.addEventListener('click', async (e) => {
+      e.preventDefault()
+      try {
+        await navigator.share({ title: boton.dataset.compartir, url: location.href })
+      } catch {}
+    })
+  }
+</script>

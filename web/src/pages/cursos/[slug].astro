@@ -13,7 +13,7 @@ const { c } = Astro.props
 const otros = CURSOS.filter((x) => x.slug !== c.slug).slice(0, 4)
 ---
 
-<Base titulo={`Curso de ${c.nombre}`} descripcion={`${c.largo}: ${c.resumen} En Villanueva de la Serena, Don Benito y Navalvillar de Pela.`}>
+<Base titulo={`Curso de ${c.nombre}`} descripcion={`${c.largo}: ${c.resumen} En Villanueva de la Serena.`}>
   <Cabeza
     rotulo={c.largo}
     titulo={c.nombre}

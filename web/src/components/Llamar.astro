@@ -1,6 +1,6 @@
 ---
 import Icono from './Icono.astro'
-import { CENTROS, tel } from '../lib/empresa.js'
+import { CENTRO, MAPA, tel } from '../lib/empresa.js'
 ---
 
 <section class="relative overflow-hidden bg-senal py-20 text-white sm:py-28">
@@ -13,17 +13,18 @@ import { CENTROS, tel } from '../lib/empresa.js'
       </p>
     </div>
     <div class="grid gap-3" data-aparece style="--retraso:100ms">
-      {
-        CENTROS.map((c) => (
-          <a href={tel(c.telefono)} class="group flex items-center justify-between rounded-2xl bg-white/10 px-5 py-4 transition hover:bg-white/18">
-            <span class="font-semibold">{c.ciudad}</span>
-            <span class="inline-flex items-center gap-2 text-lg font-black whitespace-nowrap sm:text-xl">
-              <Icono nombre="phone" class="size-5 text-amarillo" />
-              {c.telefono}
-            </span>
-          </a>
-        ))
-      }
+      <a href={tel()} class="flex items-center justify-between gap-4 rounded-2xl bg-white/10 px-5 py-5 transition hover:bg-white/18">
+        <span class="font-semibold">Llámanos</span>
+        <span class="inline-flex items-center gap-2 text-2xl font-black whitespace-nowrap sm:text-3xl">
+          <Icono nombre="phone" class="size-6 text-amarillo" />
+          {CENTRO.telefono}
+        </span>
+      </a>
+      <a href={MAPA} target="_blank" rel="noopener" class="flex items-center gap-3 rounded-2xl bg-white/10 px-5 py-4 transition hover:bg-white/18">
+        <Icono nombre="map-pin" class="size-5 shrink-0 text-amarillo" />
+        <span><span class="font-semibold">{CENTRO.direccion}</span><span class="block text-white/75">{CENTRO.cp} {CENTRO.ciudad}</span></span>
+        <Icono nombre="arrow-up-right" class="ml-auto size-4 opacity-70" />
+      </a>
       <a href="/contacto/" class="boton boton-amarillo mt-2">Prefiero que me llaméis <Icono nombre="arrow-right" class="size-4.5" /></a>
     </div>
   </div>

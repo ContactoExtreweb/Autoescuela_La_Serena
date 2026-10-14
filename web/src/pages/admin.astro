@@ -4,7 +4,6 @@
 // La seguridad la da el RLS (supabase/migrations), no esconder la página.
 import Logo from '../components/Logo.astro'
 import Icono from '../components/Icono.astro'
-import { CENTROS } from '../lib/empresa.js'
 import { PERMISOS } from '../lib/permisos.js'
 import { CATEGORIAS, ETIQUETAS } from '../lib/contenido.js'
 import '../styles/global.css'
@@ -88,19 +87,15 @@ const configurado = !!(import.meta.env.PUBLIC_SUPABASE_URL && import.meta.env.PU
             <h3 class="text-xl font-extrabold" data-titulo-form>Nueva novedad</h3>
             <label class="campo"><span>Cartel o foto <small>(opcional)</small></span><input type="file" name="imagen" accept="image/*" /></label>
             <label class="campo"><span>Título</span><input name="titulo" required maxlength="120" placeholder="Curso CAP de camión: 140 horas" /></label>
-            <div class="grid gap-4 sm:grid-cols-2">
+            <div class="grid gap-4 sm:grid-cols-3">
               <label class="campo">
                 <span>Tipo</span>
                 <select name="etiqueta">{Object.entries(ETIQUETAS).map(([v, t]) => <option value={v}>{t}</option>)}</select>
               </label>
-              <label class="campo">
-                <span>Centro</span>
-                <select name="centro"><option value="">Todos</option>{CENTROS.map((c) => <option value={c.id}>{c.ciudad}</option>)}</select>
-              </label>
               <label class="campo"><span>Empieza el <small>(opcional)</small></span><input type="date" name="fecha" /></label>
               <label class="campo"><span>Quitar de la web el <small>(opcional)</small></span><input type="date" name="caduca" /></label>
             </div>
-            <label class="campo"><span>Texto <small>(opcional)</small></span><textarea name="texto" rows="3" maxlength="600" placeholder="Horario, plazas, qué incluye…"></textarea></label>
+            <label class="campo"><span>Texto <small>(opcional: en la portada se ve el principio y, al abrir la novedad, entero)</small></span><textarea name="texto" rows="8" maxlength="4000" placeholder="Horario, plazas, qué incluye, requisitos, precio…"></textarea></label>
             <label class="flex items-center gap-3 font-bold"><input type="checkbox" name="publicada" checked class="size-5" /> Publicada en la web</label>
             <div class="botonera"><button class="boton boton-azul">Guardar</button><button type="button" class="boton boton-borde" data-cancelar>Cancelar</button></div>
           </form>
@@ -112,7 +107,7 @@ const configurado = !!(import.meta.env.PUBLIC_SUPABASE_URL && import.meta.env.PU
           <div class="cabecera-seccion">
             <div>
               <h2 class="text-3xl font-black">Galería</h2>
-              <p class="text-gris">Fotos de los centros y los alumnos. En la web se filtran por categoría.</p>
+              <p class="text-gris">Fotos de la autoescuela y los alumnos. En la web se filtran por categoría.</p>
             </div>
             <button type="button" class="boton boton-azul" data-nuevo="fotos">+ Subir fotos</button>
           </div>
@@ -328,7 +323,6 @@ const configurado = !!(import.meta.env.PUBLIC_SUPABASE_URL && import.meta.env.PU
   import { createClient } from '@supabase/supabase-js'
   import { API, CLAVE, CATEGORIAS, ETIQUETAS, urlMiniatura, fechaLarga } from '../lib/contenido.js'
   import { PERMISOS } from '../lib/permisos.js'
-  import { CENTROS } from '../lib/empresa.js'
   import { comprimir } from '../lib/imagenes.js'
 
   const $ = <T extends Element = HTMLElement>(s: string, raiz: ParentNode = document) => raiz.querySelector<T>(s)!
@@ -426,12 +420,12 @@ const configurado = !!(import.meta.env.PUBLIC_SUPABASE_URL && import.meta.env.PU
   const borrarImagen = (ruta: string | null) => ruta && bucket().remove([ruta, ruta.replace(/\.jpg$/, '_m.jpg')])
 
   // ---------- Listas ----------
-  const ciudad = (id: string) => CENTROS.find((c) => c.id === id)?.ciudad
   const clase = (slug: string) => PERMISOS.find((p) => p.slug === slug)?.clase ?? slug
   const hoy = new Date().toISOString().slice(0, 10)
   const miniatura = (r: any) => (r.imagen ? `<img src="${esc(urlMiniatura(r.imagen))}" alt="" loading="lazy">` : '<span class="sin-foto"></span>')
-  const acciones = (r: any, campo: string, editable = true) => `
+  const acciones = (r: any, campo: string, editable = true, extra = '') => `
     <div class="acciones flex flex-wrap justify-end gap-1">
+      ${extra}
       ${editable ? `<button class="accion" data-editar="${r.id}">Editar</button>` : ''}
       <button class="accion" data-alternar="${r.id}">${r[campo] ? 'Ocultar' : 'Publicar'}</button>
       <button class="accion peligro" data-borrar="${r.id}">Borrar</button>
@@ -444,11 +438,11 @@ const configurado = !!(import.meta.env.PUBLIC_SUPABASE_URL && import.meta.env.PU
       return `<li class="fila ${!r.publicada || caducada ? 'oculta' : ''}">
         ${miniatura(r)}
         <div class="min-w-0 flex-1">
-          <p class="text-sm font-bold text-azul">${[ETIQUETAS[r.etiqueta], r.fecha && `empieza el ${fechaLarga(r.fecha)}`, r.centro && ciudad(r.centro)].filter(Boolean).map(esc).join(', ')}</p>
+          <p class="text-sm font-bold text-azul">${[ETIQUETAS[r.etiqueta], r.fecha && `empieza el ${fechaLarga(r.fecha)}`].filter(Boolean).map(esc).join(', ')}</p>
           <p class="truncate text-lg font-extrabold">${esc(r.titulo)}</p>
           ${estado ? `<p class="text-sm font-bold text-red-600">${estado}</p>` : ''}
         </div>
-        ${acciones(r, 'publicada')}
+        ${acciones(r, 'publicada', true, r.publicada && !caducada ? `<a class="accion" href="/novedades/${r.id}/" target="_blank">Ver en la web</a>` : '')}
       </li>`
     },
     fotos: (r) => `<li class="${r.publicada ? '' : 'oculta'} overflow-hidden rounded-2xl border border-filete bg-papel-2">

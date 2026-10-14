@@ -1,7 +1,12 @@
 # La Serena Autoescuelas · boceto de web nueva
 
 Cliente potencial (reunión de Pedro, 07/10/2026). Web actual: laserenaautoescuelas.com (Joomla, de ~2014).
-Boceto hecho desde cero con **su** contenido: textos, fotos, centros, permisos y cursos de su web.
+Boceto hecho desde cero con **su** contenido: textos, fotos, permisos y cursos de su web.
+
+**Un solo centro (14/10/2026):** la autoescuela es independiente y solo queda el de **Villanueva de la Serena**
+(C/ San Francisco, 30 · 924 84 36 82); Don Benito y Navalvillar de Pela han cerrado. En el código es `CENTRO`
+(`lib/empresa.js`). /centros/ pasó a /donde-estamos/ (301 en `_redirects`). Las fotos de los centros cerrados
+siguen en `src/assets/fotos` sin usarse; la columna `novedades.centro` de la base ya no se usa.
 
 ## Cómo verlo
 
@@ -28,7 +33,7 @@ Astro 7 + Tailwind 4 con el adaptador de Netlify: casi todo estático; la portad
 permiso y /autoescuela/ se sirven bajo demanda (leen Supabase) con 2 min de caché en el CDN. Formulario con Netlify Forms. Fuente Overpass (nace de la letra de
 las señales de carretera). Iconos de Lucide copiados en `src/lib/iconos.js` (sin dependencia).
 
-- Datos en `src/lib/`: `empresa.js` (centros, teléfonos, enlaces), `permisos.js` (17 permisos y grupos),
+- Datos en `src/lib/`: `empresa.js` (centro, teléfono, enlaces), `permisos.js` (17 permisos y grupos),
   `cursos.js`. Las páginas de cada permiso y curso salen de ahí.
 - Fotos en `src/assets/fotos/` (las suyas; Astro las pasa a webp).
 - `public/_redirects`: 301 de todas sus URLs viejas de Joomla a las nuevas.
@@ -41,7 +46,9 @@ La autoescuela gestiona sola, sin tocar código, desde `/admin/` (noindex; móvi
 
 - **Novedades**: carteles de cursos (CAP, intensivos de teórica…), ofertas y avisos, con fecha de inicio, centro y
   «quitar de la web el…» (pasado ese día deja de salir sola). Salen en la portada **justo debajo del hero**, en
-  tarjetas que se deslizan; tocar el cartel lo abre en grande; «Me interesa» abre contacto con ese curso escrito.
+  tarjetas que se deslizan; cada una abre **su página** (`/novedades/<id>/`): cartel grande, todo el texto, «Quiero
+  información» (contacto con ese curso escrito), llamar y compartir. Es página y no ventana para poder compartirla por
+  WhatsApp/Facebook con el cartel de vista previa (og:image) y que Google la encuentre. Oculta o caducada → 404.
 - **Galería**: fotos por categoría (instalaciones, alumnos de coche, moto, camión, autobús, cursos, otros).
   Se suben varias a la vez. En `/galeria/` se filtran con enlaces (`?categoria=moto`), sin JS.
 - **Vehículos**: foto, nombre, descripción y los permisos con los que se usa. Salen en la ficha de cada permiso
@@ -80,9 +87,9 @@ que la web solo enseñe lo publicado y sin caducar, y el visor. **Falta probarlo
 - **Contador de faltas** del práctico (/permisos/#examen): sumas faltas y te dice apto / no apto.
 - Ficha de cada permiso: qué conduces, requisitos, «tu camino» (B → C → C+E) y aviso del CAP en los profesionales.
 - Cursos (CAP, ADR, carretillero, grúa…), formación gratuita (SEXPE) y bonificada (FUNDAE).
-- La autoescuela (historia familiar, flota, aulas, sellos), 3 centros con «Llamar» y «Cómo llegar».
-- Contacto: formulario corto (nombre, teléfono, qué le interesa, centro) + teléfonos de los tres centros.
-- Claro / oscuro, móvil primero, datos estructurados `DrivingSchool` con los 3 centros.
+- La autoescuela (historia familiar, flota, aulas, sellos), «Dónde estamos» con «Llamar» y «Cómo llegar».
+- Contacto: formulario corto (nombre, teléfono, qué le interesa, cuándo llamarle) + teléfono y dirección.
+- Claro / oscuro, móvil primero, datos estructurados `DrivingSchool` con su dirección.
 
 ## Argumentos para la reunión (lo que falla en su web actual)
 
@@ -100,11 +107,11 @@ que la web solo enseñe lo publicado y sin caducar, y el visor. **Falta probarlo
 1. **Edades y requisitos de los permisos** (`lib/permisos.js`): puestos con el Reglamento General de Conductores;
    que los revise un profesor. Sobre todo D1, D, BTP y B96.
 2. **Precios y horarios**: no hay ninguno en su web y no se han inventado. ¿Quieren enseñar precios o «desde»?
-3. **WhatsApp**: en la fachada de Navalvillar sale el **605 257 352**. ¿Es de WhatsApp? Sería el botón principal.
+3. **WhatsApp**: ¿tienen un móvil con WhatsApp? Sería el botón principal.
 4. **Sellos** ISO 9001 / 14001, CNAE, SEXPE y CAP: ¿siguen vigentes?
 5. **Logo en vector** (el boceto lo redibuja en `components/Logo.astro`).
 6. **Fotos nuevas**: las actuales son de 2014. Una sesión de fotos de la flota y los profesores lucería mucho.
-7. **Reseñas de Google** de los 3 centros (no se han puesto: no inventamos).
+7. **Reseñas de Google** del centro (no se han puesto: no inventamos).
 8. Textos de **plataformas elevadoras y retroexcavadora** (su web los tenía vacíos; los nuestros son genéricos).
 9. ¿Siguen con **Novatest** para los test? (enlace en `lib/empresa.js`).
 10. Datos para **aviso legal y privacidad** (razón social, NIF, dirección). Hoy `/privacidad/` es un borrador.
@@ -115,4 +122,4 @@ que la web solo enseñe lo publicado y sin caducar, y el visor. **Falta probarlo
 
 - Botón de WhatsApp fijo en el móvil.
 - Analítica propia de extreweb (`v.js`) y alta en la tabla `sitios`.
-- Páginas locales («autoescuela en Don Benito», «carnet de camión en Villanueva») para SEO.
+- Páginas locales («carnet de camión en Villanueva», «autoescuela cerca de Don Benito») para SEO.

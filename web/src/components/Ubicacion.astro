@@ -1,0 +1,27 @@
+---
+// El centro de Villanueva: fotos, dirección y botones de llamar y cómo llegar. En la portada y en /donde-estamos/.
+import { Image } from 'astro:assets'
+import Icono from './Icono.astro'
+import { CENTRO, MAPA, tel } from '../lib/empresa.js'
+import { foto } from '../lib/fotos.js'
+---
+
+<div class="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
+  <div class="grid aspect-[16/10] grid-cols-[2fr_1fr] grid-rows-2 gap-3" data-aparece>
+    <Image src={foto(CENTRO.foto)} alt={`Recepción del centro de ${CENTRO.ciudad}`} widths={[640, 1000]} sizes="(min-width: 1024px) 50vw, 100vw" class="row-span-2 size-full rounded-3xl object-cover" />
+    {CENTRO.galeria.map((g) => (
+      <Image src={foto(g)} alt={`Instalaciones de ${CENTRO.ciudad}`} widths={[320, 480]} sizes="(min-width: 1024px) 17vw, 33vw" class="size-full min-h-0 rounded-2xl object-cover" />
+    ))}
+  </div>
+  <div data-aparece style="--retraso:90ms">
+    <h2 class="text-4xl font-black sm:text-6xl">{CENTRO.ciudad}</h2>
+    <a href={MAPA} target="_blank" rel="noopener" class="mt-5 flex items-start gap-3 text-xl hover:underline">
+      <Icono nombre="map-pin" class="mt-1 size-6 shrink-0 text-azul" />
+      <span>{CENTRO.direccion}<br /><span class="text-gris">{CENTRO.cp} {CENTRO.ciudad} (Badajoz)</span></span>
+    </a>
+    <div class="mt-8 flex flex-wrap gap-3">
+      <a href={tel()} class="boton boton-azul"><Icono nombre="phone" class="size-4.5" />Llamar al {CENTRO.telefono}</a>
+      <a href={MAPA} target="_blank" rel="noopener" class="boton boton-borde text-azul">Cómo llegar <Icono nombre="arrow-up-right" class="size-4.5" /></a>
+    </div>
+  </div>
+</div>

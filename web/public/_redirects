@@ -1,7 +1,8 @@
 # URLs de la web antigua (Joomla) → las nuevas, para no perder lo que Google ya tiene indexado
 /index.php                                  /                      301
 /empresa.html                               /autoescuela/          301
-/centros.html                               /centros/              301
+/centros.html                               /donde-estamos/        301
+/centros/                                   /donde-estamos/        301
 /permisos.html                              /permisos/             301
 /cursos.html                                /cursos/               301
 /contactar.html                             /contacto/             301

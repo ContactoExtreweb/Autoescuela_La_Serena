@@ -1,0 +1,9 @@
+# Los mismos ajustes que el netlify.toml de la raíz (que apunta aquí con base = "web").
+# Hace falta este también: en `npm run dev` el adaptador de Netlify busca la config desde web/ y, con la de la
+# raíz, buscaba web/web y el servidor se caía. Si se cambia uno, cambiar el otro.
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"

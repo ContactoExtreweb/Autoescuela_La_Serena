@@ -5,6 +5,14 @@ import Cabeza from '../components/Cabeza.astro'
 import Sellos from '../components/Sellos.astro'
 import Llamar from '../components/Llamar.astro'
 import { foto } from '../lib/fotos.js'
+import Vehiculos from '../components/Vehiculos.astro'
+import Visor from '../components/Visor.astro'
+import { vehiculos, CACHE } from '../lib/contenido.js'
+
+// Bajo demanda: la flota la sube la autoescuela desde /admin
+export const prerender = false
+const flota = await vehiculos()
+Astro.response.headers.set('Netlify-CDN-Cache-Control', CACHE)
 
 const HISTORIA = [
   {
@@ -67,6 +75,18 @@ const HISTORIA = [
     </div>
   </section>
 
+  {
+    flota.length > 0 && (
+      <section class="py-16 sm:py-24">
+        <div class="contenedor">
+          <p class="rotulo mb-4">Vehículos de prácticas</p>
+          <h2 class="mb-10 max-w-3xl text-4xl font-black sm:text-6xl">Uno para cada carnet.</h2>
+          <Vehiculos lista={flota} conPermisos />
+        </div>
+      </section>
+    )
+  }
+
   <section class="py-16 sm:py-24">
     <div class="contenedor">
       <p class="rotulo mb-4">Instalaciones</p>
@@ -83,4 +103,5 @@ const HISTORIA = [
 
   <Sellos />
   <Llamar />
+  <Visor />
 </Base>

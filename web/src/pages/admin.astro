@@ -1,0 +1,620 @@
+---
+// Panel de la autoescuela: novedades (carteles de cursos, avisos), galería y vehículos de prácticas.
+// Estático; todo lo hace el navegador contra Supabase con la sesión de la cuenta de la autoescuela.
+// La seguridad la da el RLS (supabase/migrations), no esconder la página.
+import Logo from '../components/Logo.astro'
+import Icono from '../components/Icono.astro'
+import { CENTROS } from '../lib/empresa.js'
+import { PERMISOS } from '../lib/permisos.js'
+import { CATEGORIAS, ETIQUETAS } from '../lib/contenido.js'
+import '../styles/global.css'
+
+const configurado = !!(import.meta.env.PUBLIC_SUPABASE_URL && import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY)
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Panel · La Serena Autoescuelas</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script is:inline>
+      try {
+        const t = localStorage.getItem('tema') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'oscuro' : 'claro')
+        document.documentElement.dataset.tema = t
+      } catch {}
+    </script>
+  </head>
+  <body class="min-h-dvh">
+    {/* ENTRAR */}
+    <main id="entrar" hidden class="grid min-h-dvh place-items-center bg-asfalto p-4">
+      <form class="w-full max-w-sm rounded-3xl bg-papel p-7 shadow-2xl" data-entrar>
+        <Logo class="text-lg" />
+        <h1 class="mt-6 text-2xl font-black">Panel de la autoescuela</h1>
+        {
+          configurado ? (
+            <>
+              <label class="campo mt-5">
+                <span>Email</span>
+                <input name="email" type="email" required autocomplete="username" />
+              </label>
+              <label class="campo mt-4">
+                <span>Contraseña</span>
+                <input name="clave" type="password" required autocomplete="current-password" />
+              </label>
+              <p class="mt-4 hidden rounded-xl bg-red-500/15 p-3 font-semibold" data-error role="alert" />
+              <button class="boton boton-azul mt-6 w-full">Entrar</button>
+            </>
+          ) : (
+            <p class="mt-4 rounded-xl bg-amarillo/30 p-4 font-semibold">
+              Falta conectar Supabase: PUBLIC_SUPABASE_URL y PUBLIC_SUPABASE_PUBLISHABLE_KEY (web/.env.example).
+            </p>
+          )
+        }
+        <a href="/" class="mt-5 block text-center font-semibold text-azul">Volver a la web</a>
+      </form>
+    </main>
+
+    {/* PANEL */}
+    <div id="panel" hidden>
+      <header class="sticky top-0 z-30 border-b border-filete bg-papel/90 backdrop-blur-md">
+        <div class="contenedor flex h-16 items-center gap-3">
+          <a href="/" class="mr-auto text-[15px]"><Logo /></a>
+          <a href="/" target="_blank" class="hidden items-center gap-1.5 font-semibold text-gris hover:text-tinta sm:inline-flex">
+            Ver la web <Icono nombre="arrow-up-right" class="size-4" />
+          </a>
+          <button type="button" data-salir class="rounded-full px-4 py-2 font-semibold text-gris hover:bg-filete hover:text-tinta">Salir</button>
+        </div>
+        <nav class="contenedor flex gap-1 overflow-x-auto pb-2" role="tablist" aria-label="Secciones">
+          <button role="tab" data-pestana="novedades" class="pestana">Novedades</button>
+          <button role="tab" data-pestana="fotos" class="pestana">Galería</button>
+          <button role="tab" data-pestana="vehiculos" class="pestana">Vehículos</button>
+        </nav>
+      </header>
+
+      <main class="contenedor py-8">
+        {/* NOVEDADES */}
+        <section data-seccion="novedades" hidden>
+          <div class="cabecera-seccion">
+            <div>
+              <h2 class="text-3xl font-black">Novedades</h2>
+              <p class="text-gris">Carteles de cursos, intensivos, ofertas y avisos. Salen en la portada, debajo de la foto.</p>
+            </div>
+            <button type="button" class="boton boton-azul" data-nuevo="novedades">+ Nueva novedad</button>
+          </div>
+          <form data-formulario="novedades" hidden class="ficha">
+            <h3 class="text-xl font-extrabold" data-titulo-form>Nueva novedad</h3>
+            <label class="campo"><span>Cartel o foto <small>(opcional)</small></span><input type="file" name="imagen" accept="image/*" /></label>
+            <label class="campo"><span>Título</span><input name="titulo" required maxlength="120" placeholder="Curso CAP de camión: 140 horas" /></label>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <label class="campo">
+                <span>Tipo</span>
+                <select name="etiqueta">{Object.entries(ETIQUETAS).map(([v, t]) => <option value={v}>{t}</option>)}</select>
+              </label>
+              <label class="campo">
+                <span>Centro</span>
+                <select name="centro"><option value="">Todos</option>{CENTROS.map((c) => <option value={c.id}>{c.ciudad}</option>)}</select>
+              </label>
+              <label class="campo"><span>Empieza el <small>(opcional)</small></span><input type="date" name="fecha" /></label>
+              <label class="campo"><span>Quitar de la web el <small>(opcional)</small></span><input type="date" name="caduca" /></label>
+            </div>
+            <label class="campo"><span>Texto <small>(opcional)</small></span><textarea name="texto" rows="3" maxlength="600" placeholder="Horario, plazas, qué incluye…"></textarea></label>
+            <label class="flex items-center gap-3 font-bold"><input type="checkbox" name="publicada" checked class="size-5" /> Publicada en la web</label>
+            <div class="botonera"><button class="boton boton-azul">Guardar</button><button type="button" class="boton boton-borde" data-cancelar>Cancelar</button></div>
+          </form>
+          <ul data-lista="novedades" class="grid gap-3"></ul>
+        </section>
+
+        {/* GALERÍA */}
+        <section data-seccion="fotos" hidden>
+          <div class="cabecera-seccion">
+            <div>
+              <h2 class="text-3xl font-black">Galería</h2>
+              <p class="text-gris">Fotos de los centros y los alumnos. En la web se filtran por categoría.</p>
+            </div>
+            <button type="button" class="boton boton-azul" data-nuevo="fotos">+ Subir fotos</button>
+          </div>
+          <form data-formulario="fotos" hidden class="ficha">
+            <h3 class="text-xl font-extrabold">Subir fotos</h3>
+            <label class="campo"><span>Fotos <small>(puedes elegir varias)</small></span><input type="file" name="imagen" accept="image/*" multiple required /></label>
+            <label class="campo">
+              <span>Categoría</span>
+              <select name="categoria">{Object.entries(CATEGORIAS).map(([v, t]) => <option value={v}>{t}</option>)}</select>
+            </label>
+            <label class="campo"><span>Pie de foto <small>(opcional, el mismo para todas)</small></span><input name="pie" maxlength="140" /></label>
+            <p class="text-sm text-gris">Si sale alguien en la foto, aseguraos de tener su permiso para publicarla.</p>
+            <div class="botonera"><button class="boton boton-azul">Subir</button><button type="button" class="boton boton-borde" data-cancelar>Cancelar</button></div>
+          </form>
+          <label class="mb-4 flex items-center gap-3 font-bold">
+            Ver
+            <select data-filtro-fotos class="rounded-xl border-2 border-filete bg-papel-2 px-3 py-2">
+              <option value="">Todas</option>{Object.entries(CATEGORIAS).map(([v, t]) => <option value={v}>{t}</option>)}
+            </select>
+          </label>
+          <ul data-lista="fotos" class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5"></ul>
+        </section>
+
+        {/* VEHÍCULOS */}
+        <section data-seccion="vehiculos" hidden>
+          <div class="cabecera-seccion">
+            <div>
+              <h2 class="text-3xl font-black">Vehículos</h2>
+              <p class="text-gris">Los vehículos de prácticas. Cada uno sale en la ficha de sus permisos y en «La autoescuela».</p>
+            </div>
+            <button type="button" class="boton boton-azul" data-nuevo="vehiculos">+ Nuevo vehículo</button>
+          </div>
+          <form data-formulario="vehiculos" hidden class="ficha">
+            <h3 class="text-xl font-extrabold" data-titulo-form>Nuevo vehículo</h3>
+            <label class="campo"><span>Foto</span><input type="file" name="imagen" accept="image/*" data-obligatoria /></label>
+            <label class="campo"><span>Nombre</span><input name="nombre" required maxlength="80" placeholder="Renault Clio · Iveco Stralis…" /></label>
+            <label class="campo"><span>Descripción <small>(opcional)</small></span><input name="descripcion" maxlength="160" placeholder="Cambio manual, doble mando" /></label>
+            <fieldset>
+              <legend class="mb-2 font-bold">Permisos con los que se usa</legend>
+              <div class="flex flex-wrap gap-2">
+                {
+                  PERMISOS.map((p) => (
+                    <label class="chip">
+                      <input type="checkbox" name="permisos" value={p.slug} class="sr-only" />
+                      <span>{p.clase}</span>
+                    </label>
+                  ))
+                }
+              </div>
+            </fieldset>
+            <label class="campo max-w-40"><span>Orden</span><input type="number" name="orden" value="0" /></label>
+            <label class="flex items-center gap-3 font-bold"><input type="checkbox" name="publicado" checked class="size-5" /> Publicado en la web</label>
+            <div class="botonera"><button class="boton boton-azul">Guardar</button><button type="button" class="boton boton-borde" data-cancelar>Cancelar</button></div>
+          </form>
+          <ul data-lista="vehiculos" class="grid gap-3"></ul>
+        </section>
+      </main>
+    </div>
+
+    <p data-aviso role="status" class="aviso fixed inset-x-4 bottom-4 z-50 mx-auto max-w-md rounded-2xl bg-asfalto px-5 py-4 font-semibold text-white shadow-2xl" hidden></p>
+  </body>
+</html>
+
+<style is:global>
+  .campo {
+    display: grid;
+    gap: 0.4rem;
+    font-weight: 700;
+  }
+  .campo small {
+    font-weight: 400;
+    color: var(--color-gris);
+  }
+  .campo :is(input:not([type='file']), select, textarea) {
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.65rem 0.9rem;
+    border-radius: 0.8rem;
+    border: 2px solid var(--color-filete);
+    background: var(--color-papel-2);
+    font-weight: 500;
+  }
+  .campo :is(input, select, textarea):focus {
+    border-color: var(--color-senal);
+    outline: none;
+  }
+  /* En una rejilla, un hijo no encoge por debajo de su contenido: los campos de fecha se salían en el móvil */
+  .campo,
+  .ficha > * {
+    min-width: 0;
+  }
+  .campo input[type='file'] {
+    font-weight: 500;
+  }
+  .campo input[type='file']::file-selector-button {
+    margin-right: 0.75rem;
+    padding: 0.6rem 1rem;
+    border: 0;
+    border-radius: 999px;
+    background: var(--color-senal);
+    color: #fff;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .ficha {
+    display: grid;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    border-radius: 1.5rem;
+    border: 2px solid var(--color-senal);
+    background: var(--color-papel-2);
+  }
+  .ficha[hidden] {
+    display: none;
+  }
+  .botonera {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+  .cabecera-seccion {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .pestana {
+    padding: 0.55rem 1rem;
+    border-radius: 999px;
+    font-weight: 700;
+    color: var(--color-gris);
+    white-space: nowrap;
+  }
+  .pestana[aria-selected='true'] {
+    background: var(--color-senal);
+    color: #fff;
+  }
+  .chip span {
+    display: grid;
+    place-items: center;
+    min-width: 3.2rem;
+    min-height: 2.6rem;
+    padding: 0 0.6rem;
+    border-radius: 0.6rem;
+    border: 2px solid var(--color-filete);
+    font-weight: 900;
+    cursor: pointer;
+  }
+  .chip input:checked + span {
+    background: var(--color-senal);
+    border-color: var(--color-senal);
+    color: #fff;
+  }
+  .chip input:focus-visible + span {
+    outline: 3px solid var(--color-amarillo);
+  }
+  .fila {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    padding: 0.75rem;
+    border-radius: 1.1rem;
+    border: 1px solid var(--color-filete);
+    background: var(--color-papel-2);
+  }
+  .fila img,
+  .fila .sin-foto {
+    width: 4.5rem;
+    height: 4.5rem;
+    flex-shrink: 0;
+    border-radius: 0.7rem;
+    object-fit: cover;
+    background: var(--color-filete);
+  }
+  /* Los botones de cada fila: debajo en el móvil, a la derecha en pantallas anchas */
+  .fila .acciones {
+    flex-basis: 100%;
+    justify-content: flex-end;
+    border-top: 1px solid var(--color-filete);
+    padding-top: 0.4rem;
+  }
+  @media (min-width: 640px) {
+    .fila .acciones {
+      flex-basis: auto;
+      border: 0;
+      padding: 0;
+    }
+  }
+  .accion {
+    padding: 0.45rem 0.8rem;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--color-azul);
+  }
+  .accion:hover {
+    background: var(--color-filete);
+  }
+  .accion.peligro {
+    color: #d92d20;
+  }
+  .oculta {
+    opacity: 0.55;
+  }
+</style>
+
+<script>
+  import { createClient } from '@supabase/supabase-js'
+  import { API, CLAVE, CATEGORIAS, ETIQUETAS, urlMiniatura, fechaLarga } from '../lib/contenido.js'
+  import { PERMISOS } from '../lib/permisos.js'
+  import { CENTROS } from '../lib/empresa.js'
+  import { comprimir } from '../lib/imagenes.js'
+
+  const $ = <T extends Element = HTMLElement>(s: string, raiz: ParentNode = document) => raiz.querySelector<T>(s)!
+  const $$ = <T extends Element = HTMLElement>(s: string, raiz: ParentNode = document) => [...raiz.querySelectorAll<T>(s)]
+  const esc = (t: unknown) => String(t ?? '').replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`)
+
+  if (!API || !CLAVE) {
+    $('#entrar').hidden = false
+    throw new Error('Supabase sin configurar')
+  }
+  const sb = createClient(API, CLAVE)
+  const bucket = () => sb.storage.from('web')
+
+  // ---------- Avisos ----------
+  let temporizador = 0
+  function avisar(texto: string, error = false) {
+    const p = $('[data-aviso]')
+    p.textContent = texto
+    p.classList.toggle('!bg-red-600', error)
+    p.hidden = false
+    clearTimeout(temporizador)
+    temporizador = window.setTimeout(() => (p.hidden = true), error ? 7000 : 4000)
+  }
+  const PUBLICADO = 'Guardado. Sale en la web en uno o dos minutos.'
+
+  // ---------- Sesión ----------
+  async function pintarSesion() {
+    const { data } = await sb.auth.getSession()
+    $('#entrar').hidden = !!data.session
+    $('#panel').hidden = !data.session
+    if (data.session) abrir(location.hash.slice(1) || 'novedades')
+  }
+
+  $('[data-entrar]').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const f = e.currentTarget as HTMLFormElement
+    const error = $('[data-error]', f)
+    error.classList.add('hidden')
+    const boton = $<HTMLButtonElement>('button', f)
+    boton.disabled = true
+    const { error: fallo } = await sb.auth.signInWithPassword({ email: f.email.value.trim(), password: f.clave.value })
+    boton.disabled = false
+    if (fallo) {
+      // No es lo mismo una contraseña mal que no llegar al servidor (proyecto pausado, sin conexión)
+      error.textContent = /invalid/i.test(fallo.message) ? 'Email o contraseña incorrectos.' : `No se ha podido entrar: ${fallo.message}`
+      error.classList.remove('hidden')
+      return
+    }
+    pintarSesion()
+  })
+  $('[data-salir]').addEventListener('click', async () => {
+    await sb.auth.signOut()
+    pintarSesion()
+  })
+
+  // ---------- Pestañas ----------
+  const cargadas = new Set<string>()
+  function abrir(tabla: string) {
+    if (!['novedades', 'fotos', 'vehiculos'].includes(tabla)) tabla = 'novedades'
+    for (const b of $$('[data-pestana]')) b.setAttribute('aria-selected', String(b.dataset.pestana === tabla))
+    for (const s of $$('[data-seccion]')) s.hidden = s.dataset.seccion !== tabla
+    history.replaceState(null, '', `#${tabla}`)
+    if (!cargadas.has(tabla)) cargar(tabla)
+  }
+  for (const b of $$('[data-pestana]')) b.addEventListener('click', () => abrir(b.dataset.pestana!))
+
+  // ---------- Datos ----------
+  const filas: Record<string, any[]> = { novedades: [], fotos: [], vehiculos: [] }
+  const ORDEN: Record<string, string> = { novedades: 'created_at', fotos: 'created_at', vehiculos: 'orden' }
+
+  async function cargar(tabla: string) {
+    const { data, error } = await sb
+      .from(tabla)
+      .select('*')
+      .order(ORDEN[tabla], { ascending: tabla === 'vehiculos' })
+      .order('created_at', { ascending: false })
+      .limit(1000)
+    if (error) return avisar(`No se ha podido cargar: ${error.message}`, true)
+    filas[tabla] = data
+    cargadas.add(tabla)
+    pintar(tabla)
+  }
+
+  /** Comprime y sube la imagen con su miniatura. Devuelve los campos para la fila. */
+  async function subirImagen(carpeta: string, archivo: File) {
+    const { foto, mini } = await comprimir(archivo)
+    const ruta = `${carpeta}/${crypto.randomUUID()}.jpg`
+    const opciones = { contentType: 'image/jpeg', cacheControl: '31536000' }
+    const a = await bucket().upload(ruta, foto.blob, opciones)
+    if (a.error) throw a.error
+    const b = await bucket().upload(ruta.replace(/\.jpg$/, '_m.jpg'), mini.blob, opciones)
+    if (b.error) throw b.error
+    return { imagen: ruta, ancho: foto.ancho, alto: foto.alto }
+  }
+  const borrarImagen = (ruta: string | null) => ruta && bucket().remove([ruta, ruta.replace(/\.jpg$/, '_m.jpg')])
+
+  // ---------- Listas ----------
+  const ciudad = (id: string) => CENTROS.find((c) => c.id === id)?.ciudad
+  const clase = (slug: string) => PERMISOS.find((p) => p.slug === slug)?.clase ?? slug
+  const hoy = new Date().toISOString().slice(0, 10)
+  const miniatura = (r: any) => (r.imagen ? `<img src="${esc(urlMiniatura(r.imagen))}" alt="" loading="lazy">` : '<span class="sin-foto"></span>')
+  const acciones = (r: any, campo: string, editable = true) => `
+    <div class="acciones flex flex-wrap justify-end gap-1">
+      ${editable ? `<button class="accion" data-editar="${r.id}">Editar</button>` : ''}
+      <button class="accion" data-alternar="${r.id}">${r[campo] ? 'Ocultar' : 'Publicar'}</button>
+      <button class="accion peligro" data-borrar="${r.id}">Borrar</button>
+    </div>`
+
+  const PINTORES: Record<string, (r: any) => string> = {
+    novedades: (r) => {
+      const caducada = r.caduca && r.caduca < hoy
+      const estado = !r.publicada ? 'Oculta' : caducada ? 'Ya no sale (fecha pasada)' : ''
+      return `<li class="fila ${!r.publicada || caducada ? 'oculta' : ''}">
+        ${miniatura(r)}
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-bold text-azul">${[ETIQUETAS[r.etiqueta], r.fecha && `empieza el ${fechaLarga(r.fecha)}`, r.centro && ciudad(r.centro)].filter(Boolean).map(esc).join(', ')}</p>
+          <p class="truncate text-lg font-extrabold">${esc(r.titulo)}</p>
+          ${estado ? `<p class="text-sm font-bold text-red-600">${estado}</p>` : ''}
+        </div>
+        ${acciones(r, 'publicada')}
+      </li>`
+    },
+    fotos: (r) => `<li class="${r.publicada ? '' : 'oculta'} overflow-hidden rounded-2xl border border-filete bg-papel-2">
+        <img src="${esc(urlMiniatura(r.imagen))}" alt="" loading="lazy" class="aspect-square w-full object-cover">
+        <div class="grid gap-2 p-2">
+          <select data-categoria="${r.id}" class="w-full rounded-lg border border-filete bg-papel px-2 py-1.5 text-sm font-semibold">
+            ${Object.entries(CATEGORIAS).map(([v, t]) => `<option value="${v}" ${v === r.categoria ? 'selected' : ''}>${t}</option>`).join('')}
+          </select>
+          ${r.pie ? `<p class="truncate text-sm text-gris">${esc(r.pie)}</p>` : ''}
+          ${acciones(r, 'publicada', false)}
+        </div>
+      </li>`,
+    vehiculos: (r) => `<li class="fila ${r.publicado ? '' : 'oculta'}">
+        ${miniatura(r)}
+        <div class="min-w-0 flex-1">
+          <p class="truncate text-lg font-extrabold">${esc(r.nombre)}</p>
+          <p class="mt-1 flex flex-wrap gap-1">${r.permisos.map((p: string) => `<span class="rounded bg-senal px-1.5 text-sm font-black text-white">${esc(clase(p))}</span>`).join('') || '<span class="text-sm font-bold text-red-600">Sin permisos: no sale en ninguna ficha</span>'}</p>
+        </div>
+        ${acciones(r, 'publicado')}
+      </li>`,
+  }
+
+  const VACIO: Record<string, string> = {
+    novedades: 'Aún no hay novedades. Sube el cartel del próximo curso.',
+    fotos: 'Aún no hay fotos.',
+    vehiculos: 'Aún no hay vehículos.',
+  }
+
+  function pintar(tabla: string) {
+    let lista = filas[tabla]
+    if (tabla === 'fotos') {
+      const cat = $<HTMLSelectElement>('[data-filtro-fotos]').value
+      if (cat) lista = lista.filter((r) => r.categoria === cat)
+    }
+    $(`[data-lista="${tabla}"]`).innerHTML = lista.length
+      ? lista.map(PINTORES[tabla]).join('')
+      : `<li class="col-span-full rounded-2xl border-2 border-dashed border-filete p-8 text-center text-gris">${VACIO[tabla]}</li>`
+  }
+  $('[data-filtro-fotos]').addEventListener('change', () => pintar('fotos'))
+
+  // ---------- Acciones de las listas ----------
+  for (const lista of $$('[data-lista]')) {
+    const tabla = lista.dataset.lista!
+    const campo = tabla === 'vehiculos' ? 'publicado' : 'publicada'
+    lista.addEventListener('click', async (e) => {
+      const b = (e.target as Element).closest<HTMLButtonElement>('button')
+      if (!b) return
+      const fila = filas[tabla].find((r) => r.id === (b.dataset.editar || b.dataset.alternar || b.dataset.borrar))
+      if (!fila) return
+      if (b.dataset.editar) return editar(tabla, fila)
+      if (b.dataset.alternar) {
+        const { error } = await sb.from(tabla).update({ [campo]: !fila[campo] }).eq('id', fila.id)
+        if (error) return avisar(error.message, true)
+        fila[campo] = !fila[campo]
+        pintar(tabla)
+        return avisar(fila[campo] ? PUBLICADO : 'Oculto. Deja de salir en la web en uno o dos minutos.')
+      }
+      if (b.dataset.borrar) {
+        if (!confirm('¿Borrar para siempre? No se puede deshacer.')) return
+        const { error } = await sb.from(tabla).delete().eq('id', fila.id)
+        if (error) return avisar(error.message, true)
+        await borrarImagen(fila.imagen)
+        filas[tabla] = filas[tabla].filter((r) => r !== fila)
+        pintar(tabla)
+        avisar('Borrado.')
+      }
+    })
+  }
+  // Cambiar la categoría de una foto directamente desde la lista
+  $('[data-lista="fotos"]').addEventListener('change', async (e) => {
+    const s = e.target as HTMLSelectElement
+    if (!s.dataset.categoria) return
+    const { error } = await sb.from('fotos').update({ categoria: s.value }).eq('id', s.dataset.categoria)
+    if (error) return avisar(error.message, true)
+    filas.fotos.find((r) => r.id === s.dataset.categoria).categoria = s.value
+    avisar('Categoría cambiada.')
+  })
+
+  // ---------- Formularios ----------
+  const formulario = (tabla: string) => $<HTMLFormElement>(`[data-formulario="${tabla}"]`)
+
+  function mostrar(tabla: string, fila: any = null) {
+    const f = formulario(tabla)
+    f.reset()
+    f.dataset.id = fila?.id ?? ''
+    const titulo = f.querySelector('[data-titulo-form]')
+    if (titulo) titulo.textContent = fila ? 'Editar' : tabla === 'vehiculos' ? 'Nuevo vehículo' : 'Nueva novedad'
+    // La foto es obligatoria al crear un vehículo; al editar, solo si se quiere cambiar
+    f.querySelector<HTMLInputElement>('[data-obligatoria]')?.toggleAttribute('required', !fila)
+    f.hidden = false
+    f.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    f.querySelector<HTMLElement>('input:not([type=file]), select')?.focus({ preventScroll: true })
+  }
+
+  function editar(tabla: string, fila: any) {
+    mostrar(tabla, fila)
+    const f = formulario(tabla)
+    for (const el of f.elements as any) {
+      if (!el.name || el.type === 'file') continue
+      if (el.type === 'checkbox') el.checked = el.name === 'permisos' ? fila.permisos.includes(el.value) : !!fila[el.name]
+      else el.value = fila[el.name] ?? ''
+    }
+  }
+
+  for (const b of $$('[data-nuevo]')) b.addEventListener('click', () => mostrar(b.dataset.nuevo!))
+  for (const b of $$('[data-cancelar]')) b.addEventListener('click', () => (b.closest('form')!.hidden = true))
+
+  /** Los campos del formulario como fila: vacíos → null, casillas → true/false, permisos → lista */
+  function datosDe(f: HTMLFormElement) {
+    const datos: Record<string, any> = {}
+    for (const el of f.elements as any) {
+      if (!el.name || el.type === 'file' || el.name === 'permisos') continue
+      datos[el.name] = el.type === 'checkbox' ? el.checked : el.type === 'number' ? Number(el.value) || 0 : el.value.trim() || null
+    }
+    if (f.elements.namedItem('permisos')) datos.permisos = $$<HTMLInputElement>('[name=permisos]:checked', f).map((c) => c.value)
+    return datos
+  }
+
+  for (const f of $$<HTMLFormElement>('[data-formulario]')) {
+    const tabla = f.dataset.formulario!
+    f.addEventListener('submit', async (e) => {
+      e.preventDefault()
+      const boton = $<HTMLButtonElement>('button:not([type=button])', f)
+      const textoBoton = boton.textContent
+      boton.disabled = true
+      try {
+        const archivos = [...(f.elements.namedItem('imagen') as HTMLInputElement).files!]
+        const datos = datosDe(f)
+        const id = f.dataset.id
+
+        if (tabla === 'fotos') {
+          // Una fila por foto; se suben de una en una para no saturar el móvil
+          let n = 0
+          for (const archivo of archivos) {
+            boton.textContent = `Subiendo ${++n} de ${archivos.length}…`
+            const { error } = await sb.from('fotos').insert({ ...datos, ...(await subirImagen('galeria', archivo)) })
+            if (error) throw error
+          }
+        } else if (id) {
+          const anterior = filas[tabla].find((r) => r.id === id)
+          if (archivos[0]) {
+            boton.textContent = 'Subiendo foto…'
+            Object.assign(datos, await subirImagen(tabla, archivos[0]))
+          }
+          const { error } = await sb.from(tabla).update(datos).eq('id', id)
+          if (error) throw error
+          if (archivos[0]) await borrarImagen(anterior?.imagen)
+        } else {
+          if (archivos[0]) {
+            boton.textContent = 'Subiendo foto…'
+            Object.assign(datos, await subirImagen(tabla, archivos[0]))
+          }
+          const { error } = await sb.from(tabla).insert(datos)
+          if (error) throw error
+        }
+        f.hidden = true
+        await cargar(tabla)
+        avisar(PUBLICADO)
+      } catch (error: any) {
+        avisar(`No se ha podido guardar: ${error.message ?? error}`, true)
+      } finally {
+        boton.disabled = false
+        boton.textContent = textoBoton
+      }
+    })
+  }
+
+  pintarSesion()
+</script>

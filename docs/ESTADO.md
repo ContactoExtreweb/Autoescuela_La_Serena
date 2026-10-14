@@ -24,13 +24,52 @@ push nuevo: «Retry» repite el despliegue ya bloqueado.
 
 ## Stack (igual que IMTEX)
 
-Astro 7 + Tailwind 4, estático, sin adaptador. Formulario con Netlify Forms. Fuente Overpass (nace de la letra de
+Astro 7 + Tailwind 4 con el adaptador de Netlify: casi todo estático; la portada, /galeria/, las fichas de
+permiso y /autoescuela/ se sirven bajo demanda (leen Supabase) con 2 min de caché en el CDN. Formulario con Netlify Forms. Fuente Overpass (nace de la letra de
 las señales de carretera). Iconos de Lucide copiados en `src/lib/iconos.js` (sin dependencia).
 
 - Datos en `src/lib/`: `empresa.js` (centros, teléfonos, enlaces), `permisos.js` (17 permisos y grupos),
   `cursos.js`. Las páginas de cada permiso y curso salen de ahí.
 - Fotos en `src/assets/fotos/` (las suyas; Astro las pasa a webp).
 - `public/_redirects`: 301 de todas sus URLs viejas de Joomla a las nuevas.
+- Hay dos `netlify.toml` con los mismos ajustes: el de la raíz (base = "web") para Netlify y `web/netlify.toml`
+  para `npm run dev` (con solo el de la raíz, el plugin de Netlify buscaba web/web y el servidor se caía).
+
+## Panel /admin (14/10/2026)
+
+La autoescuela gestiona sola, sin tocar código, desde `/admin/` (noindex; móvil primero):
+
+- **Novedades**: carteles de cursos (CAP, intensivos de teórica…), ofertas y avisos, con fecha de inicio, centro y
+  «quitar de la web el…» (pasado ese día deja de salir sola). Salen en la portada **justo debajo del hero**, en
+  tarjetas que se deslizan; tocar el cartel lo abre en grande; «Me interesa» abre contacto con ese curso escrito.
+- **Galería**: fotos por categoría (instalaciones, alumnos de coche, moto, camión, autobús, cursos, otros).
+  Se suben varias a la vez. En `/galeria/` se filtran con enlaces (`?categoria=moto`), sin JS.
+- **Vehículos**: foto, nombre, descripción y los permisos con los que se usa. Salen en la ficha de cada permiso
+  («Con qué vehículo aprendes») y en /autoescuela/.
+- Todo se puede editar, ocultar/publicar y borrar (borrar quita también la foto del almacén).
+- Las fotos se comprimen en el navegador antes de subir: JPEG de 1.800 px + miniatura de 600 px (`lib/imagenes.js`).
+- Los cambios salen en la web en 1–2 minutos (caché del CDN, `CACHE` en `lib/contenido.js`).
+- Sin Supabase configurado, las secciones nuevas no salen y /admin avisa: la web no se rompe.
+
+Código: `supabase/migrations/20261014100000_web.sql` (tablas, RLS, bucket), `web/src/lib/contenido.js` (lectura
+pública con fetch y la clave publicable, como IMTEX), `web/src/pages/admin.astro` (panel, con supabase-js),
+componentes `Novedades`, `Vehiculos` y `Visor`. Las categorías y tipos están en `contenido.js` y en el `check`
+del SQL: si cambia uno, cambiar el otro.
+
+### Puesta en marcha de Supabase (una vez)
+
+1. Crear el proyecto en Supabase (región Europa). Ojo: el plan gratis permite 2 proyectos activos por organización.
+2. SQL Editor → pegar y ejecutar `supabase/migrations/20261014100000_web.sql` (o `npx supabase db push` enlazado).
+3. Authentication → Sign In / Providers: desactivar «Allow new users to sign up».
+4. Authentication → Users → Add user: la cuenta de la autoescuela (email + contraseña). Es la única que entra.
+5. Netlify → Site configuration → Environment variables: `PUBLIC_SUPABASE_URL` y
+   `PUBLIC_SUPABASE_PUBLISHABLE_KEY` (Project Settings → API; la publicable/anon, **nunca** la secreta) y redesplegar.
+   En local, lo mismo en `web/.env` (plantilla en `web/.env.example`).
+6. El proyecto gratis se pausa tras una semana sin uso: si la web deja de enseñar novedades, mirar eso primero.
+
+Probado el 14/10 contra un Supabase falso en local (API, login y almacenamiento): entrar, contraseña mala,
+crear/editar/ocultar/publicar/borrar novedades, subir varias fotos y cambiar su categoría, vehículos con permisos,
+que la web solo enseñe lo publicado y sin caducar, y el visor. **Falta probarlo contra el Supabase real.**
 
 ## Qué tiene
 
@@ -74,7 +113,6 @@ las señales de carretera). Iconos de Lucide copiados en `src/lib/iconos.js` (si
 
 ## Ideas si sale adelante (no hechas)
 
-- Próximas fechas de cursos CAP / ADR editables desde un panel.
 - Botón de WhatsApp fijo en el móvil.
 - Analítica propia de extreweb (`v.js`) y alta en la tabla `sitios`.
 - Páginas locales («autoescuela en Don Benito», «carnet de camión en Villanueva») para SEO.

@@ -155,7 +155,11 @@ import { CURSOS } from '../lib/cursos.js'
   // Lo que eligió en el buscador o en una ficha («Lo quiero») llega en ?interes=
   const interes = new URLSearchParams(location.search).get('interes')
   const select = form.querySelector<HTMLSelectElement>('[data-interes]')!
-  if (interes && [...select.options].some((o) => o.value === interes)) select.value = interes
+  // Una novedad del panel («Curso CAP intensivo de octubre») no está en la lista: se añade arriba
+  if (interes) {
+    if (![...select.options].some((o) => o.value === interes)) select.options.add(new Option(interes), 1)
+    select.value = interes
+  }
 
   // Envío sin salir de la página. Sin JS, el POST normal también llega a Netlify.
   form.addEventListener('submit', async (e) => {

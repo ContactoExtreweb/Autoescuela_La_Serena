@@ -12,7 +12,9 @@
     "preview": "astro preview"
   },
   "dependencies": {
+    "@astrojs/netlify": "^8.2.9",
     "@fontsource-variable/overpass": "^5.3.0",
+    "@supabase/supabase-js": "^2.117.3",
     "@tailwindcss/vite": "^4.3.3",
     "astro": "^7.3.6",
     "tailwindcss": "^4.3.3"

@@ -3,13 +3,18 @@ import Base from '../../layouts/Base.astro'
 import Cabeza from '../../components/Cabeza.astro'
 import Icono from '../../components/Icono.astro'
 import Aside from '../../components/Aside.astro'
-import { PERMISOS, GRUPOS, camino, edadTexto } from '../../lib/permisos.js'
+import Vehiculos from '../../components/Vehiculos.astro'
+import Visor from '../../components/Visor.astro'
+import { PERMISOS, GRUPOS, camino, edadTexto, permiso } from '../../lib/permisos.js'
+import { vehiculos, CACHE } from '../../lib/contenido.js'
 
-export function getStaticPaths() {
-  return PERMISOS.map((p) => ({ params: { slug: p.slug }, props: { p } }))
-}
-
-const { p } = Astro.props
+// Bajo demanda: los vehículos de cada permiso los sube la autoescuela desde /admin
+export const prerender = false
+const p = permiso(Astro.params.slug)
+// Un permiso que no existe: 404 (Astro enseña src/pages/404.astro)
+if (!p) return new Response(null, { status: 404 })
+const flota = await vehiculos(p.slug)
+Astro.response.headers.set('Netlify-CDN-Cache-Control', CACHE)
 const grupo = GRUPOS.find((g) => g.id === p.grupo)
 const antes = camino(p)
 const despues = PERMISOS.filter((x) => x.requiere === p.slug)
@@ -86,6 +91,15 @@ const requisitos = [
         )
       }
 
+      {
+        flota.length > 0 && (
+          <section>
+            <h2 class="text-3xl font-black sm:text-4xl">Con qué vehículo aprendes</h2>
+            <div class="mt-6"><Vehiculos lista={flota} /></div>
+          </section>
+        )
+      }
+
       {/* El camino: lo que va antes y lo que puedes sacarte después */}
       <section>
         <h2 class="text-3xl font-black sm:text-4xl">Tu camino</h2>
@@ -138,4 +152,5 @@ const requisitos = [
 
     <Aside interes={`Permiso ${p.clase}`} />
   </div>
+  <Visor />
 </Base>

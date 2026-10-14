@@ -1,0 +1,29 @@
+---
+// Ver una foto o un cartel en grande: cualquier enlace con data-visor abre su href en este <dialog>.
+// Sin JS, el enlace abre la imagen sin más. Esc, tocar fuera o la X cierran.
+---
+
+<dialog id="visor" class="visor m-auto max-h-[94dvh] max-w-[94vw] bg-transparent p-0 backdrop:bg-black/85">
+  <form method="dialog">
+    <button class="fixed top-3 right-3 grid size-12 place-items-center rounded-full bg-white/15 text-3xl text-white hover:bg-white/25" aria-label="Cerrar">×</button>
+  </form>
+  <img data-visor-img alt="" class="max-h-[86dvh] max-w-[94vw] rounded-xl object-contain" />
+  <p data-visor-pie class="mt-3 text-center text-white/85"></p>
+</dialog>
+
+<script>
+  const visor = document.querySelector<HTMLDialogElement>('#visor')!
+  const img = visor.querySelector<HTMLImageElement>('[data-visor-img]')!
+  const pie = visor.querySelector<HTMLElement>('[data-visor-pie]')!
+  document.addEventListener('click', (e) => {
+    const a = (e.target as Element).closest<HTMLAnchorElement>('a[data-visor]')
+    if (!a) return
+    e.preventDefault()
+    img.src = a.href
+    img.alt = a.dataset.visor || ''
+    pie.textContent = a.dataset.visor || ''
+    visor.showModal()
+  })
+  // Tocar fuera de la imagen cierra
+  visor.addEventListener('click', (e) => e.target === visor && visor.close())
+</script>

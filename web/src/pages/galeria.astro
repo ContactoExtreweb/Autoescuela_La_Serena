@@ -1,0 +1,81 @@
+---
+import Base from '../layouts/Base.astro'
+import Cabeza from '../components/Cabeza.astro'
+import Visor from '../components/Visor.astro'
+import Llamar from '../components/Llamar.astro'
+import { CATEGORIAS, CACHE, fotos, urlImagen, urlMiniatura } from '../lib/contenido.js'
+
+// Bajo demanda: las fotos que suben desde /admin salen sin volver a desplegar
+export const prerender = false
+const todas = await fotos()
+Astro.response.headers.set('Netlify-CDN-Cache-Control', CACHE)
+
+// Filtro con enlaces normales (/galeria/?categoria=moto): funciona sin JS y se puede compartir
+const elegida = Object.hasOwn(CATEGORIAS, Astro.url.searchParams.get('categoria') ?? '') ? Astro.url.searchParams.get('categoria') : null
+const visibles = elegida ? todas.filter((f) => f.categoria === elegida) : todas
+const filtros = [
+  { href: '/galeria/', texto: 'Todas', n: todas.length, activo: !elegida },
+  ...Object.entries(CATEGORIAS)
+    .map(([id, texto]) => ({ href: `/galeria/?categoria=${id}`, texto, n: todas.filter((f) => f.categoria === id).length, activo: elegida === id }))
+    .filter((f) => f.n > 0),
+]
+---
+
+<Base titulo="Galería" descripcion="Fotos de La Serena Autoescuelas: instalaciones, alumnos de coche, moto, camión y autobús, y cursos.">
+  <Cabeza
+    rotulo="Galería"
+    titulo="Así se aprende en La Serena."
+    texto="Nuestros centros, nuestros alumnos y el día a día en la pista."
+    migas={[{ href: '/galeria/', texto: 'Galería' }]}
+  />
+
+  <section class="py-12 sm:py-16">
+    <div class="contenedor">
+      {
+        todas.length === 0 ? (
+          <p class="py-16 text-center text-xl text-gris">Muy pronto, las primeras fotos.</p>
+        ) : (
+          <>
+            <nav aria-label="Filtrar fotos" class="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0">
+              <ul class="flex w-max gap-2 sm:w-auto sm:flex-wrap">
+                {filtros.map((f) => (
+                  <li>
+                    <a
+                      href={f.href}
+                      aria-current={f.activo ? 'page' : undefined}
+                      class="inline-flex min-h-11 items-center gap-2 rounded-full border-2 border-filete px-4 font-bold whitespace-nowrap aria-[current=page]:border-senal aria-[current=page]:bg-senal aria-[current=page]:text-white"
+                    >
+                      {f.texto} <span class="text-sm opacity-60">{f.n}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+
+            {/* Columnas tipo mosaico: cada foto con su proporción */}
+            <ul class="mt-8 columns-2 gap-3 md:columns-3 lg:columns-4 [&>li]:mb-3">
+              {visibles.map((f) => (
+                <li class="break-inside-avoid">
+                  <a href={urlImagen(f.imagen)} data-visor={f.pie || CATEGORIAS[f.categoria]} class="group block overflow-hidden rounded-2xl bg-papel-2">
+                    <img
+                      src={urlMiniatura(f.imagen)}
+                      width={f.ancho}
+                      height={f.alto}
+                      alt={f.pie || CATEGORIAS[f.categoria]}
+                      loading="lazy"
+                      class="w-full transition duration-500 group-hover:scale-[1.03]"
+                    />
+                  </a>
+                  {f.pie && <p class="mt-1.5 px-1 text-sm text-gris">{f.pie}</p>}
+                </li>
+              ))}
+            </ul>
+          </>
+        )
+      }
+    </div>
+  </section>
+
+  <Llamar />
+  <Visor />
+</Base>

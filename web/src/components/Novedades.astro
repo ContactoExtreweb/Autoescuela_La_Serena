@@ -1,0 +1,78 @@
+---
+// Carteles de cursos y avisos que sube la autoescuela desde /admin. Sin novedades, la sección no sale.
+import Icono from './Icono.astro'
+import { CENTROS } from '../lib/empresa.js'
+import { ETIQUETAS, fechaLarga, urlImagen, urlMiniatura } from '../lib/contenido.js'
+
+interface Props {
+  lista: any[]
+}
+const { lista } = Astro.props
+const ciudad = (id) => CENTROS.find((c) => c.id === id)?.ciudad
+---
+
+{
+  lista.length > 0 && (
+    <section class="bg-asfalto pt-14 text-white sm:pt-20" aria-labelledby="novedades-titulo">
+      <div class="contenedor">
+        <p class="rotulo !text-celeste mb-3">Novedades</p>
+        <h2 id="novedades-titulo" class="text-4xl font-black sm:text-5xl">
+          Próximos cursos y avisos
+        </h2>
+      </div>
+      {/* Se deslizan de lado; en escritorio caben varias a la vez */}
+      <div class="contenedor mt-8">
+        <ul class="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-4 overflow-x-auto px-4 pb-4 [scrollbar-width:thin] sm:-mx-8 sm:scroll-px-8 sm:px-8">
+          {lista.map((n) => (
+            <li class="flex w-[78%] max-w-80 shrink-0 snap-start flex-col overflow-hidden rounded-3xl bg-white/6 sm:w-72">
+              {n.imagen ? (
+                <a href={urlImagen(n.imagen)} data-visor={n.titulo} class="block bg-white/5">
+                  <img
+                    src={urlMiniatura(n.imagen)}
+                    width={n.ancho}
+                    height={n.alto}
+                    alt={`Cartel: ${n.titulo}`}
+                    loading="lazy"
+                    class="aspect-[3/4] w-full object-cover object-top"
+                  />
+                </a>
+              ) : (
+                // Sin cartel: la fecha en grande sobre el azul de marca, para que no quede un hueco
+                <div class="grid aspect-[3/4] place-items-center bg-senal text-center" aria-hidden="true">
+                  {n.fecha ? (
+                    <p class="leading-none font-black">
+                      <span class="block text-8xl">{new Date(`${n.fecha}T12:00:00`).getDate()}</span>
+                      <span class="mt-2 block text-2xl tracking-wide uppercase">
+                        {new Date(`${n.fecha}T12:00:00`).toLocaleDateString('es-ES', { month: 'long' })}
+                      </span>
+                    </p>
+                  ) : (
+                    <Icono nombre="route" class="size-20 opacity-80" />
+                  )}
+                </div>
+              )}
+              <div class="flex flex-1 flex-col p-5">
+                <p class="flex flex-wrap items-center gap-2 text-sm font-bold">
+                  <span class="rounded-full bg-senal px-2.5 py-0.5">{ETIQUETAS[n.etiqueta]}</span>
+                  {n.fecha && <span class="text-celeste">Empieza el {fechaLarga(n.fecha)}</span>}
+                </p>
+                <h3 class="mt-3 text-xl font-extrabold leading-tight">{n.titulo}</h3>
+                {n.texto && <p class="mt-2 line-clamp-4 text-white/75">{n.texto}</p>}
+                {n.centro && (
+                  <p class="mt-3 flex items-center gap-1.5 text-sm text-white/70">
+                    <Icono nombre="map-pin" class="size-4" /> {ciudad(n.centro)}
+                  </p>
+                )}
+                <div class="mt-auto pt-5">
+                  <a href={`/contacto/?interes=${encodeURIComponent(n.titulo)}`} class="boton boton-azul !min-h-11 !px-5 text-[15px]">
+                    Me interesa <Icono nombre="arrow-right" class="size-4" />
+                  </a>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )
+}

@@ -9,6 +9,14 @@ import Llamar from '../components/Llamar.astro'
 import { CENTROS, ENLACES, tel, mapa } from '../lib/empresa.js'
 import { CURSOS } from '../lib/cursos.js'
 import { foto } from '../lib/fotos.js'
+import Novedades from '../components/Novedades.astro'
+import Visor from '../components/Visor.astro'
+import { novedades, CACHE } from '../lib/contenido.js'
+
+// Bajo demanda: las novedades que suben desde /admin salen sin volver a desplegar
+export const prerender = false
+const lista = await novedades()
+Astro.response.headers.set('Netlify-CDN-Cache-Control', CACHE)
 
 const PROFESIONALES = ['C1', 'C', 'C+E', 'D1', 'D', 'D+E']
 ---
@@ -62,6 +70,9 @@ const PROFESIONALES = ['C1', 'C', 'C+E', 'D1', 'D', 'D+E']
   </section>
 
   <Carretera />
+
+  {/* NOVEDADES: carteles de cursos y avisos que suben ellos, justo debajo de la portada */}
+  <Novedades lista={lista} />
 
   {/* BUSCADOR: la pieza que hace la web útil */}
   <section id="buscador" class="bg-asfalto py-16 sm:py-24">
@@ -254,6 +265,7 @@ const PROFESIONALES = ['C1', 'C', 'C+E', 'D1', 'D', 'D+E']
 
   <Sellos />
   <Llamar />
+  <Visor />
 </Base>
 
 <style>
